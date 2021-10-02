@@ -3,7 +3,7 @@
 # AutoUpdate for Openwrt
 # Dependences: bash wget-ssl/wget/uclient-fetch curl openssl jsonfilter
 
-Version=V6.5.8
+Version=V6.5.9
 
 function TITLE() {
 	clear && echo "Openwrt-AutoUpdate Script by Hyy2001 ${Version}"
@@ -111,6 +111,11 @@ function CHECK_ENV() {
 }
 
 function EXIT() {
+	case $1 in
+	1 | 2)
+		REMOVE_CACHE
+	;;
+	esac
 	LOGGER "[${COMMAND}] 运行结束 $1"
 	exit
 }
@@ -304,6 +309,7 @@ function UPDATE_SCRIPT() {
 		ECHO "脚本保存路径: [$1]"
 		[[ -n ${Banner_Version} && $1 == /bin ]] && sed -i "s?${Banner_Version}?${Script_Version}?g" /etc/banner
 		ECHO y "[${Banner_Version} > ${Script_Version}] AutoUpdate 脚本更新成功!"
+		REMOVE_CACHE
 		EXIT 0
 	else
 		ECHO r "AutoUpdate 脚本更新失败!"
