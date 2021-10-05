@@ -3,7 +3,7 @@
 # AutoUpdate for Openwrt
 # Dependences: bash wget-ssl/wget/uclient-fetch curl openssl jsonfilter
 
-Version=V6.6.1
+Version=V6.6.2
 
 function TITLE() {
 	clear && echo "Openwrt-AutoUpdate Script by Hyy2001 ${Version}"
@@ -84,7 +84,7 @@ EOF
 
 function RM() {
 	rm -f $1 2> /dev/null
-	[[ $? == 0 ]] && LOGGER "已删除文件: [$1]" || LOGGER "文件: [$1] 不存在或删除失败!"
+	[[ $? == 0 ]] && LOGGER "文件: [$1] 删除成功!" || LOGGER "文件: [$1] 不存在或删除失败!"
 }
 
 function LIST_ENV() {
@@ -653,8 +653,6 @@ EOF
 
 function DOWNLOADER() {
 	local DL_Downloader DL_Name DL_URL DL_Path DL_Retries DL_Timeout DL_Type DL_Final Quiet_Mode No_URL_Name Print_Mode DL_Retires_All DL_URL_Final
-	LOGGER "开始解析传入参数 ..."
-	# --dl 下载器 --file-name 文件名称 --no-url-name --url 下载地址1@@重试次数 下载地址2@@重试次数 --path 保存位置 --timeout 超时 --type 类型 --quiet --print
 	while [[ $1 ]];do
 		case "$1" in
 		--dl)
@@ -718,7 +716,7 @@ function DOWNLOADER() {
 			DL_Path="$1"
 			if [[ ! -d ${DL_Path} ]];then
 				mkdir -p ${DL_Path} 2> /dev/null || {
-					ECHO r "下载路径 [${DL_Path}] 创建失败!"
+					ECHO r "目标下载路径 [${DL_Path}] 创建失败!"
 					return 1
 				}
 			fi
@@ -750,12 +748,10 @@ function DOWNLOADER() {
 		;;
 		--quiet)
 			shift
-			LOGGER "Enabled Quiet Mode"
 			Quiet_Mode=quiet
 		;;
 		--print)
 			shift
-			LOGGER "Enabled Print Mode"
 			Print_Mode=1
 			Quiet_Mode=quiet
 		;;
@@ -765,7 +761,6 @@ function DOWNLOADER() {
 		;;
 		esac
 	done
-	LOGGER "传入参数解析完成!"
 	case "${DL_Downloader}" in
 	wget | wget-ssl)
 		DL_Template="wget-ssl --quiet --no-check-certificate --no-dns-cache -x -4 --tries 1 --timeout 5 -O"
@@ -804,7 +799,6 @@ function DOWNLOADER() {
 				} || DL_Final="${DL_Template} ${DL_Path}/${DL_Name} ${DL_URL_Final}/${DL_Name}"
 			fi
 			[[ -f ${DL_Path}/${DL_Name} ]] && {
-				LOGGER "删除已存在的文件: [${DL_Path}/${DL_Name}] ..."
 				RM ${DL_Path}/${DL_Name}
 			}
 			LOGGER "执行下载: [${DL_Final}]"
