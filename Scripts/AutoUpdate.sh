@@ -3,7 +3,7 @@
 # AutoUpdate for Openwrt
 # Dependences: bash wget-ssl/wget/uclient-fetch curl openssl jsonfilter
 
-Version=V6.6.3
+Version=V6.6.4
 
 function TITLE() {
 	clear && echo "Openwrt-AutoUpdate Script by Hyy2001 ${Version}"
@@ -35,9 +35,9 @@ function SHELL_HELP() {
 其他参数:
 	-B, --boot-mode <TYPE>		指定 x86 设备下载 <TYPE> 引导的固件 (e.g. UEFI Legacy)
 	-C <Github URL>			更改 Github 地址为提供的 <Github URL>
-	-H, --help			打印 AutoUpdate 帮助信息
-	-L, --log < | del>		<打印 | 删除> AutoUpdate 历史运行日志
-	    --log --path <PATH>		更改 AutoUpdate 运行日志路径为提供的绝对路径 <PATH>
+	--help				打印 AutoUpdate 帮助信息
+	--log < | del>			<打印 | 删除> AutoUpdate 历史运行日志
+	--log --path <PATH>		更改 AutoUpdate 运行日志路径为提供的绝对路径 <PATH>
 	-O				打印云端可用固件名称
 	-P <F | G>			使用 <FastGit | Ghproxy> 镜像加速 *
 	--backup --path <PATH>		备份当前系统配置文件并移动到提供的绝对路径 <PATH> (可选)
@@ -111,11 +111,6 @@ function CHECK_ENV() {
 }
 
 function EXIT() {
-	case $1 in
-	1)
-		REMOVE_CACHE
-	;;
-	esac
 	LOGGER "[${COMMAND}] 运行结束 $1"
 	exit
 }
@@ -155,7 +150,7 @@ function ECHO() {
 }
 
 function LOGGER() {
-	if [[ ! $* =~ (-H|--help|-L|--log) ]];then
+	if [[ ! $* =~ (--help|--log) ]];then
 		[[ ! -d ${Log_Path} ]] && mkdir -p ${Log_Path}
 		[[ ! -f ${Log_Path}/AutoUpdate.log ]] && touch ${Log_Path}/AutoUpdate.log
 		echo "[$(date "+%Y-%m-%d-%H:%M:%S")] [$$] $*" >> ${Log_Path}/AutoUpdate.log
@@ -388,12 +383,13 @@ function CHECK_TIME() {
 }
 
 function ANALYSIS_API() {
-	local url name date size version
+	local url name date size version count
 	local API_Dump=${Running_Path}/API_Dump
 	[[ $(CHECK_TIME ${API_File} 1) == false ]] && {
 		DOWNLOADER --path ${Running_Path} --file-name API_Dump --dl ${DOWNLOADERS} --url "$(URL_X ${Github_Release}/API G@@1 F@@1) ${Github_API}@@1 " --no-url-name --timeout 3 --type 固件信息 --quiet
 		[[ ! $? == 0 || -z $(cat ${API_Dump} 2> /dev/null) ]] && {
 			ECHO r "Github API 请求错误,请检查网络后重试!"
+			RM ${API_File}
 			EXIT 1
 		}
 		RM ${API_File} && touch -a ${API_File}
@@ -407,16 +403,18 @@ function ANALYSIS_API() {
 				url=$(jsonfilter -e '@["assets"]' < ${API_Dump} | jsonfilter -e '@['"""$i"""'].browser_download_url' 2> /dev/null)
 				size=$(jsonfilter -e '@["assets"]' < ${API_Dump} | jsonfilter -e '@['"""$i"""'].size' 2> /dev/null | awk '{a=$1/1048576} {printf("%.2f\n",a)}')
 				date=$(echo ${version} | cut -d '-' -f2)
-				printf "%-75s %-20s %-10s %-15s %s\n" ${name} ${version} ${date} ${size}MB ${url} >> ${API_File}
+				count=$(jsonfilter -e '@["assets"]' < ${API_Dump} | jsonfilter -e '@['"""$i"""'].download_count' 2> /dev/null)
+				printf "%-5s %-75s %-20s %-10s %-15s %s\n" ${count} ${name} ${version} ${date} ${size}MB ${url} >> ${API_File}
 			fi
 			i=$(($i + 1))
 		done
 	}
 	awk -F ' ' '{print NF}' ${API_File} | while read X;do
-		[[ ${X} != 5 ]] && LOGGER "[ANALYSIS_API] API 解析异常: ${X}"
+		[[ ${X} != 6 ]] && LOGGER "[ANALYSIS_API] API 解析异常: ${X}"
 	done
 	[[ -z $(cat ${API_File} 2> /dev/null) ]] && {
 		ECHO r "Github API 解析失败!"
+		RM ${API_File}
 		EXIT 1
 	} || LOGGER "[ANALYSIS_API] Github API 解析成功!"
 }
@@ -431,44 +429,28 @@ function GET_CLOUD_INFO() {
 		Info=$(grep "AutoBuild-${OP_REPO_NAME}-${TARGET_PROFILE}" ${API_File} | grep "${x86_Boot}" | uniq)
 		shift
 	else
-		Info=$(grep "AutoBuild-${OP_REPO_NAME}-${TARGET_PROFILE}" ${API_File} | grep "${x86_Boot}" | awk 'BEGIN {MAX = 0} {if ($3+0 > MAX+0) {MAX=$3 ;content=$0} } END {print content}')
+		Info=$(grep "AutoBuild-${OP_REPO_NAME}-${TARGET_PROFILE}" ${API_File} | grep "${x86_Boot}" | awk 'BEGIN {MAX = 0} {if ($4+0 > MAX+0) {MAX=$4 ;content=$0} } END {print content}')
 	fi
 	case "$1" in
-	name)
+	count)
 		echo "${Info}" | awk '{print $1}'
 	;;
-	version)
+	name)
 		echo "${Info}" | awk '{print $2}'
 	;;
-	date)
+	version)
 		echo "${Info}" | awk '{print $3}'
 	;;
-	size)
+	date)
 		echo "${Info}" | awk '{print $4}'
 	;;
-	url)
+	size)
 		echo "${Info}" | awk '{print $5}'
 	;;
+	url)
+		echo "${Info}" | awk '{print $6}'
+	;;
 	esac
-}
-
-function CHECK_UPDATES() {
-	local Version
-	Version="$(GET_CLOUD_INFO version)"
-	[[ $(FW_VERSION_CHECK ${Version}) == false ]] && {
-		ECHO r "固件版本合法性校验失败!"
-		EXIT 1
-	}
-	[[ ${Version} == ${CURRENT_Version} ]] && {
-		CURRENT_Type="${Yellow} [已是最新]${White}"
-		Upgrade_Stopped=1
-	} || {
-		[[ $(echo ${Version} | cut -d "-" -f2) -gt $(echo ${CURRENT_Version} | cut -d "-" -f2) ]] && CURRENT_Type="${Green} [可更新]${White}"
-		[[ $(echo ${Version} | cut -d "-" -f2) -lt $(echo ${CURRENT_Version} | cut -d "-" -f2) ]] && {
-			CHECKED_Type="${Red} [旧版本]${White}"
-			Upgrade_Stopped=2
-		}
-	}
 }
 
 function UPGRADE() {
@@ -559,18 +541,24 @@ function UPGRADE() {
 	fi
 	ECHO "正在检查版本更新 ..."
 	ANALYSIS_API
-	CHECK_UPDATES
 	CLOUD_FW_Version="$(GET_CLOUD_INFO version)"
 	CLOUD_FW_Name="$(GET_CLOUD_INFO name)"
+	CLOUD_FW_Count="$(GET_CLOUD_INFO count)"
 	CLOUD_FW_Size="$(GET_CLOUD_INFO size)"
 	CLOUD_FW_Url="$(GET_CLOUD_INFO url)"
 	[[ -z ${CLOUD_FW_Name} ]] && {
-		ECHO r "云端固件名称获取失败!"
+		ECHO r "云端固件信息获取失败!"
 		EXIT 1
 	}
-	[[ -z ${CLOUD_FW_Version} ]] && {
-		ECHO r "云端固件版本获取失败!"
-		EXIT 1
+	[[ ${CLOUD_FW_Version} == ${CURRENT_Version} ]] && {
+		CURRENT_Type="${Yellow} [已是最新]${White}"
+		Upgrade_Stopped=1
+	} || {
+		[[ $(echo ${CLOUD_FW_Version} | cut -d "-" -f2) -gt $(echo ${CURRENT_Version} | cut -d "-" -f2) ]] && CURRENT_Type="${Green} [可更新]${White}"
+		[[ $(echo ${CLOUD_FW_Version} | cut -d "-" -f2) -lt $(echo ${CURRENT_Version} | cut -d "-" -f2) ]] && {
+			CHECKED_Type="${Red} [旧版本]${White}"
+			Upgrade_Stopped=2
+		}
 	}
 	cat <<EOF
 
@@ -583,22 +571,24 @@ $(echo -e "云端固件版本: ${CLOUD_FW_Version}${CHECKED_Type}")
 
 云端固件名称: ${CLOUD_FW_Name}
 云端固件体积: ${CLOUD_FW_Size}
+固件下载人数: ${CLOUD_FW_Count}
 EOF
-	LOGGER "当前固件版本: ${CURRENT_Version}"
-	LOGGER "云端固件版本: ${CLOUD_FW_Version}"
+	LOGGER "当前版本: ${CURRENT_Version}"
+	LOGGER "云端版本: ${CLOUD_FW_Version}"
 	LOGGER "云端固件名称: ${CLOUD_FW_Name}"
 	LOGGER "云端固件体积: ${CLOUD_FW_Size}"
+	LOGGER "固件下载人数: ${CLOUD_FW_Count}"
 	GET_FW_LOG -v ${CLOUD_FW_Version}
 	case "${Upgrade_Stopped}" in
 	1 | 2)
 		[[ ${AutoUpdate_Mode} == 1 ]] && ECHO y "当前固件已是最新版本,无需更新!" && EXIT 0
-		[[ ${Upgrade_Stopped} == 1 ]] && MSG="已是最新版本" || MSG="云端固件版本为旧版"
+		[[ ${Upgrade_Stopped} == 1 ]] && err_MSG="当前固件已是最新版本" || err_MSG="云端固件版本为旧版"
 		[[ ! ${Force_Mode} == 1 ]] && {
-			LOGGER "当前${MSG}"
-			ECHO && read -p "${MSG},是否继续更新固件?[Y/n]:" Choose
+			LOGGER "${err_MSG}!"
+			ECHO && read -p "${err_MSG},是否继续更新固件?[Y/n]:" Choose
 		} || Choose=Y
 		[[ ! ${Choose} =~ [Yy] ]] && {
-			LOGGER "用户已取消固件更新!"
+			LOGGER "已取消当前更新操作!"
 			EXIT 0
 		}
 	;;
@@ -1141,11 +1131,11 @@ function AutoUpdate_Main() {
 			CHANGE_GITHUB $1
 			EXIT 2
 		;;
-		-H | --help)
+		--help)
 			SHELL_HELP
 			EXIT 2
 		;;
-		-L | --log)
+		--log)
 			shift
 			LOG $*
 			EXIT 2
