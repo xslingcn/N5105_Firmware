@@ -9,7 +9,7 @@ AutoBuild-Actions 稳定版/模板地址: [AutoBuild-Actions-Template](https://g
 
 支持的 OpenWrt 源码: `coolsnowwolf/lede`、`immortalwrt/immortalwrt`、`openwrt/openwrt`、`lienol/openwrt`
 
-## 部署环境(STEP 1):
+## 部署环境(STEP 1)
 
 1. 首先需要获取 **Github Token**: [点击这里](https://github.com/settings/tokens/new) 获取,
 
@@ -23,7 +23,7 @@ AutoBuild-Actions 稳定版/模板地址: [AutoBuild-Actions-Template](https://g
 
    其中`Name`项随意填写,然后将你的 **Token** 粘贴到`Value`项,完成后点击`Add secert`
 
-## 定制固件(STEP 2):
+## 定制固件(STEP 2)
 
 1. 进入你的`AutoBuild-Actions`仓库,**下方所有操作都将在你的`AutoBuild-Actions`仓库下进行**
 
@@ -43,7 +43,7 @@ AutoBuild-Actions 稳定版/模板地址: [AutoBuild-Actions-Template](https://g
 
 5. 按照需求且编辑`/Scripts/AutoBuild_DiyScript.sh`文件即可,`/Scripts`下的其他文件可以都不用修改
 
-   **额外的软件包列表** 按照现有语法和提示编辑`/Scripts/AutoBuild_ExtraPackages.sh`文件
+   **单独的软件包列表** 按照现有语法和提示编辑`/Scripts/AutoBuild_ExtraPackages.sh`
 
 **AutoBuild_DiyScript.sh: Diy_Core() 函数中的变量解释:**
 ```
@@ -77,14 +77,7 @@ AutoBuild-Actions 稳定版/模板地址: [AutoBuild-Actions-Template](https://g
    
    带 * 符号的选项表示仅在 coolsnowwolf/lede 源码测试通过,这表示可能在其他源码不能友好地运行
 ```
-**其他指令:** 参照下方语法:
-```
-   [使用 git clone 拉取文件]  AddPackage git 存放位置 仓库名称 仓库作者 分支
 
-   [使用 svn co 拉取文件]  AddPackage svn 存放位置 软件包名 仓库作者/仓库名称/branches/分支名称/路径(可选)
-
-   [复制 /CustomFiles 文件到源码] Copy 文件(夹)名称 目标路径 新名称(可选)
-```
 ## 编译固件(STEP 3):
 
    **一键编译** 先删除`第 26-27 行`的注释并保存,单(双)击重新点亮右上角的 **Star** 即可一键编译
@@ -95,23 +88,46 @@ AutoBuild-Actions 稳定版/模板地址: [AutoBuild-Actions-Template](https://g
    
    **临时修改 IP 地址** 该功能仅在**手动编译**时生效,点击`Run workflow`后即可输入 IP 地址(优先级**高于** `Default_LAN_IP`)
 
-## 使用 AutoUpdate 一键更新脚本:
+## 部署云端日志(可选)
 
-   首先需要打开`TTYD 终端`或者在使用`ssh`连接设备,按需输入下方指令:
+1. 下载本仓库中的 [Update_Logs.json](https://github.com/Hyy2001X/AutoBuild-Actions/releases/download/AutoUpdate/Update_Logs.json) 到本地
+
+2. 以 **JSON 格式**修改已下载到本地的`Update_Logs.json`文件
+
+3. 上传修改后的`Update_Logs.json`到你仓库的`Release`
+
+### 使用 AutoUpdate 一键更新脚本:
+
+   首先需要打开`TTYD 终端`或者使用`SSH`,按需输入下方指令:
 
    更新固件: `autoupdate`或`bash /bin/AutoUpdate.sh`
 
-   更新固件(优先使用镜像加速 Ghproxy | FastGit): `autoupdate -P <G | F>`
+   更新固件(镜像加速 Ghproxy | FastGit): `autoupdate -P <G | F>`
 
    更新固件(不保留配置): `autoupdate -n`
    
    强制刷入固件: `autoupdate -F`
    
    "我不管,我就是要更新!": `autoupdate -f`
-   
+
+   查看所有可用参数: `autoupdate --help`
+
    **注意:** 部分参数可一起使用,例如: `autoupdate -n -P G -F --skip --path /mnt/sda1`
 
-   查看更多参数/使用方法: `autoupdate --help`
+### 使用 tools 固件工具箱:
+
+   打开`TTYD 终端`或者使用`SSH`,执行指令`tools`或`bash /bin/AutoBuild_Tools.sh`即可启动固件工具箱
+
+   当前支持以下功能:
+
+   - USB 扩展内部空间
+   - Samba 相关设置
+   - 打印端口占用详细列表
+   - 打印所有硬盘信息
+   - 网络检查 (基础网络 | Google 连接检测)
+   - AutoBuild 固件环境修复
+   - 系统信息监控
+   - 打印在线设备列表
 
 ## 鸣谢
 
