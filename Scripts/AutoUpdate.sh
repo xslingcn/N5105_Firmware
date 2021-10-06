@@ -198,9 +198,9 @@ function LOAD_VARIABLE() {
 		} || LOGGER "[LOAD_VARIABLE] 未检测到环境变量列表: [$1]"
 		shift
 	done
-	[[ -z ${TARGET_PROFILE} ]] && TARGET_PROFILE="$(jsonfilter -e '@.model.id' < /etc/board.json | tr ',' '_')"
+	[[ -z ${TARGET_PROFILE} ]] && TARGET_PROFILE="$(jsonfilter -i /etc/board.json -e '@.model.id' | tr ',' '_')"
 	[[ -z ${TARGET_PROFILE} ]] && ECHO r "获取设备名称失败!" && EXIT 1
-	[[ -z ${Github} ]] && ECHO "Github URL 获取失败!" && EXIT 1
+	[[ -z ${Github} ]] && ECHO r "Github URL 获取失败!" && EXIT 1
 	[[ -z ${CURRENT_Version} ]] && CURRENT_Version="未知"
 	Firmware_Author="${Github##*com/}"
 	Github_Release="${Github}/releases/download/AutoUpdate"
@@ -333,41 +333,14 @@ function CHECK_DEPENDS() {
 	ECHO y "AutoUpdate 依赖检测结束,请尝试手动安装测结果为 [false] 的项目!"
 }
 
-function FW_VERSION_CHECK() {
+function CHECK_VERSION() {
 	[[ $# -gt 1 ]] && echo false && return
 	[[ $1 =~ R[1-9.]{2}.+-[0-9]{8} ]] && {
 		echo true
-		LOGGER "[FW_VERSION_CHECK] 检查固件版本号: [$1] ... true"
+		LOGGER "[CHECK_VERSION] 检查固件版本号: [$1] ... true"
 	} || {
 		echo false
-		LOGGER "[FW_VERSION_CHECK] 检查固件版本号: [$1] ... false"
-	}
-}
-
-function GET_FW_LOG() {
-	local Result
-	[[ ! $(cat ${API_File}) =~ Update_Logs.json ]] && return 1
-	case "$1" in
-	[Ll]ocal)
-		FW_Version="${CURRENT_Version}"
-	;;
-	[Cc]loud)
-		FW_Version="$(GET_CLOUD_INFO version)"
-	;;
-	-v)
-		shift
-		FW_Version="$1"
-	;;
-	esac
-	[[ $(CHECK_TIME ${Running_Path}/Update_Logs.json 2) == false ]] && {
-		DOWNLOADER --path ${Running_Path} --file-name Update_Logs.json --dl ${DOWNLOADERS} --url "$(URL_X ${Github_Release} G@@1)" --timeout 3 --type 固件更新日志 --quiet
-	}
-	[[ -s ${Running_Path}/Update_Logs.json ]] && {
-		Result=$(jsonfilter -e '@["'"""${TARGET_PROFILE}"""'"]["'"""${FW_Version}"""'"]' < ${Running_Path}/Update_Logs.json 2> /dev/null)
-		[[ -n ${Result} ]] && {
-			echo -e "\n${Grey}${FW_Version} for ${TARGET_PROFILE} 更新日志:"
-			echo -e "\n${Green}${Result}${White}"
-		}
+		LOGGER "[CHECK_VERSION] 检查固件版本号: [$1] ... false"
 	}
 }
 
@@ -395,15 +368,15 @@ function ANALYSIS_API() {
 		RM ${API_File} && touch -a ${API_File}
 		LOGGER "[ANALYSIS_API] 开始解析 Github API ..."
 		local i=1;while :;do
-			name=$(jsonfilter -e '@["assets"]' < ${API_Dump} | jsonfilter -e '@['"""$i"""'].name' 2> /dev/null)
+			name=$(jsonfilter -i ${API_Dump} -e '@["assets"]' | jsonfilter -e '@['"""$i"""'].name' 2> /dev/null)
 			[[ ! $? == 0 ]] && break
-			if [[ ${name} =~ "AutoBuild-${OP_REPO_NAME}-${TARGET_PROFILE}" ]]
+			if [[ ${name} =~ "AutoBuild-${OP_REPO_NAME}-${TARGET_PROFILE}" || ${name} =~ Update_Logs.json ]]
 			then
 				version=$(echo ${name} | egrep -o "R[0-9.]+-[0-9]+")
-				url=$(jsonfilter -e '@["assets"]' < ${API_Dump} | jsonfilter -e '@['"""$i"""'].browser_download_url' 2> /dev/null)
-				size=$(jsonfilter -e '@["assets"]' < ${API_Dump} | jsonfilter -e '@['"""$i"""'].size' 2> /dev/null | awk '{a=$1/1048576} {printf("%.2f\n",a)}')
+				url=$(jsonfilter -i ${API_Dump} -e '@["assets"]' | jsonfilter -e '@['"""$i"""'].browser_download_url' 2> /dev/null)
+				size=$(jsonfilter -i ${API_Dump} -e '@["assets"]' | jsonfilter -e '@['"""$i"""'].size' 2> /dev/null | awk '{a=$1/1048576} {printf("%.2f\n",a)}')
 				date=$(echo ${version} | cut -d '-' -f2)
-				count=$(jsonfilter -e '@["assets"]' < ${API_Dump} | jsonfilter -e '@['"""$i"""'].download_count' 2> /dev/null)
+				count=$(jsonfilter -i ${API_Dump} -e '@["assets"]' | jsonfilter -e '@['"""$i"""'].download_count' 2> /dev/null)
 				printf "%-5s %-75s %-20s %-10s %-15s %s\n" ${count} ${name} ${version} ${date} ${size}MB ${url} >> ${API_File}
 			fi
 			i=$(($i + 1))
@@ -417,6 +390,36 @@ function ANALYSIS_API() {
 		RM ${API_File}
 		EXIT 1
 	} || LOGGER "[ANALYSIS_API] Github API 解析成功!"
+}
+
+function GET_CLOUD_LOG() {
+	local Result Version
+	[[ ! $(cat ${API_File} 2> /dev/null) =~ Update_Logs.json ]] && {
+		LOGGER "[GET_CLOUD_LOG] 未检测到云端日志文件!"
+		return
+	}
+	case "$1" in
+	[Ll]ocal)
+		Version="${CURRENT_Version}"
+	;;
+	[Cc]loud)
+		Version="$(GET_CLOUD_INFO version)"
+	;;
+	-v)
+		shift
+		Version="$1"
+	;;
+	esac
+	[[ $(CHECK_TIME ${Running_Path}/Update_Logs.json 1) == false ]] && {
+		DOWNLOADER --path ${Running_Path} --file-name Update_Logs.json --dl ${DOWNLOADERS} --url "$(URL_X ${Github_Release} G@@1)" --timeout 3 --type 固件更新日志 --quiet
+	}
+	[[ -s ${Running_Path}/Update_Logs.json ]] && {
+		Result=$(jsonfilter -i ${Running_Path}/Update_Logs.json -e '@["'"""${TARGET_PROFILE}"""'"]["'"""${Version}"""'"]' 2> /dev/null)
+		[[ -n ${Result} ]] && {
+			echo -e "\n${Grey}${Version} for ${TARGET_PROFILE} 更新日志:"
+			echo -e "\n${Green}${Result}${White}"
+		} || LOGGER "当前固件日志解析失败!"
+	}
 }
 
 function GET_CLOUD_INFO() {
@@ -578,17 +581,16 @@ EOF
 	LOGGER "云端固件名称: ${CLOUD_FW_Name}"
 	LOGGER "云端固件体积: ${CLOUD_FW_Size}"
 	LOGGER "固件下载人数: ${CLOUD_FW_Count}"
-	GET_FW_LOG -v ${CLOUD_FW_Version}
+	GET_CLOUD_LOG -v ${CLOUD_FW_Version}
 	case "${Upgrade_Stopped}" in
 	1 | 2)
 		[[ ${AutoUpdate_Mode} == 1 ]] && ECHO y "当前固件已是最新版本,无需更新!" && EXIT 0
 		[[ ${Upgrade_Stopped} == 1 ]] && err_MSG="当前固件已是最新版本" || err_MSG="云端固件版本为旧版"
 		[[ ! ${Force_Mode} == 1 ]] && {
-			LOGGER "${err_MSG}!"
 			ECHO && read -p "${err_MSG},是否继续更新固件?[Y/n]:" Choose
 		} || Choose=Y
 		[[ ! ${Choose} =~ [Yy] ]] && {
-			LOGGER "已取消当前更新操作!"
+			LOGGER "已取消固件更新操作!"
 			EXIT 0
 		}
 	;;
@@ -1063,18 +1065,18 @@ function AutoUpdate_Main() {
 		--fw-log)
 			shift
 			ANALYSIS_API
-			[[ -z $* ]] && GET_FW_LOG local
+			[[ -z $* ]] && GET_CLOUD_LOG local
 			case "$1" in
 			[Cc]loud)
-				GET_FW_LOG $1
+				GET_CLOUD_LOG $1
 			;;
 			*)
 				[[ -z $* ]] && EXIT 0
-				[[ ! $(FW_VERSION_CHECK $1) == true ]] && {
+				[[ ! $(CHECK_VERSION $1) == true ]] && {
 					ECHO r "固件版本号合法性检查失败!"
 					EXIT 1
 				} || {
-					GET_FW_LOG -v $1
+					GET_CLOUD_LOG -v $1
 				}
 			;;
 			esac
