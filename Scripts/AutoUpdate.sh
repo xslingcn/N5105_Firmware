@@ -113,8 +113,8 @@ function CHECK_ENV() {
 function EXIT() {
 	case $1 in
 	0 | 1)
-	;;
 		LOGGER "[${COMMAND}] 运行结束 $1"
+	;;
 	esac
 	exit
 }
