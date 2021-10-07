@@ -157,7 +157,7 @@ function LOGGER() {
 	if [[ ! $* =~ (--help|--log) ]];then
 		[[ ! -d ${Log_Path} ]] && mkdir -p ${Log_Path}
 		[[ ! -f ${Log_Path}/AutoUpdate.log ]] && touch ${Log_Path}/AutoUpdate.log
-		echo "[$(date "%H:%M:%S")] [$$] $*" >> ${Log_Path}/AutoUpdate.log
+		echo "[$(date "+%H:%M:%S")] [$$] $*" >> ${Log_Path}/AutoUpdate.log
 	fi
 }
 
