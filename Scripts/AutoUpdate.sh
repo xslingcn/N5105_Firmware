@@ -3,7 +3,7 @@
 # AutoUpdate for Openwrt
 # Dependences: bash wget-ssl/wget/uclient-fetch curl openssl jsonfilter
 
-Version=V6.6.4
+Version=V6.6.5
 
 function TITLE() {
 	clear && echo "Openwrt-AutoUpdate Script by Hyy2001 ${Version}"
@@ -84,7 +84,7 @@ EOF
 
 function RM() {
 	rm -f $1 2> /dev/null
-	[[ $? == 0 ]] && LOGGER "[RM] [$1] 删除成功!" || LOGGER "[RM] [$1] 不存在或删除失败!"
+	[[ $? == 0 ]] && LOGGER "已删除文件: [$1]" || LOGGER "[$1] 删除失败!"
 }
 
 function LIST_ENV() {
@@ -111,7 +111,11 @@ function CHECK_ENV() {
 }
 
 function EXIT() {
-	LOGGER "[${COMMAND}] 运行结束 $1"
+	case $1 in
+	0 | 1)
+	;;
+		LOGGER "[${COMMAND}] 运行结束 $1"
+	esac
 	exit
 }
 
@@ -153,7 +157,7 @@ function LOGGER() {
 	if [[ ! $* =~ (--help|--log) ]];then
 		[[ ! -d ${Log_Path} ]] && mkdir -p ${Log_Path}
 		[[ ! -f ${Log_Path}/AutoUpdate.log ]] && touch ${Log_Path}/AutoUpdate.log
-		echo "[$(date "+%Y-%m-%d-%H:%M:%S")] [$$] $*" >> ${Log_Path}/AutoUpdate.log
+		echo "[$(date "%H:%M:%S")] [$$] $*" >> ${Log_Path}/AutoUpdate.log
 	fi
 }
 
@@ -180,13 +184,11 @@ function GET_SHA256SUM() {
 
 function GET_VARIABLE() {
 	[[ $# != 2 ]] && SHELL_HELP
-	[[ ! -f $2 ]] && ECHO "未检测到定义文件: [$2] !" && EXIT 1
+	[[ ! -f $2 ]] && ECHO "[GET_VARIABLE] 未检测到环境变量文件: [$2] !" && EXIT 1
 	local Result="$(grep "$1=" $2 | grep -v "#" | awk 'NR==1' | sed -r "s/$1=(.*)/\1/")"
 	[[ -n ${Result} ]] && {
 		echo "${Result}"
-		LOGGER "[GET_VARIABLE] 获取到环境变量 $1=[${Result}]"
-	} || {
-		LOGGER "[GET_VARIABLE] 环境变量 [$1] 获取失败!"
+		LOGGER "[GET_VARIABLE] 获取环境变量 $1=[${Result}]"
 	}
 }
 
@@ -841,7 +843,6 @@ function REMOVE_CACHE() {
 	rm -rf ${Running_Path}/API \
 		${Running_Path}/Update_Logs \
 		${Running_Path}/API_Dump 2> /dev/null
-	LOGGER "[REMOVE_CACHE] AutoUpdate 缓存清理完成!"
 }
 
 function LOG() {
@@ -918,7 +919,6 @@ URL_X() {
 		esac
 		[[ -n ${URL_Final} ]] && {
 			echo "${URL_Final}"
-			LOGGER "[URL_X] ${URL_Final}"
 		}
 		unset URL_Final
 		shift
@@ -993,7 +993,7 @@ function AutoUpdate_Main() {
 		case "$1" in
 		-n | -f | -u | -T | -P | --proxy | -F | --force-write | --verbose | --decompress | --skip-verify | -D | --path)
 			UPGRADE $*
-			EXIT 2
+			EXIT
 		;;
 		--backup)
 			local FILE="backup-$(uname -n)-$(date +%Y-%m-%d)-$(RANDOM 5).tar.gz"
@@ -1023,7 +1023,7 @@ function AutoUpdate_Main() {
 		--clean)
 			shift && [[ -n $* ]] && SHELL_HELP
 			REMOVE_CACHE
-			EXIT 0
+			EXIT
 		;;
 		--check)
 			shift && [[ -n $* ]] && SHELL_HELP
@@ -1032,7 +1032,7 @@ function AutoUpdate_Main() {
 				ECHO r "网络连接错误!"
 			} || ECHO y "网络连接正常!"
 			CHECK_ENV ${ENV_DEPENDS}
-			EXIT 0
+			EXIT
 		;;
 		--env-list)
 			shift
@@ -1045,7 +1045,7 @@ function AutoUpdate_Main() {
 				SHELL_HELP
 			;;
 			esac
-			EXIT 2
+			EXIT
 		;;
 		-V)
 			shift
@@ -1060,7 +1060,7 @@ function AutoUpdate_Main() {
 				SHELL_HELP
 			;;
 			esac
-			EXIT 2
+			EXIT
 		;;
 		--fw-log)
 			shift
@@ -1080,12 +1080,12 @@ function AutoUpdate_Main() {
 				}
 			;;
 			esac
-			EXIT 2
+			EXIT
 		;;
 		--list)
 			shift
 			SHOW_VARIABLE
-			EXIT 0
+			EXIT
 		;;
 		--var)
 			local Result
@@ -1094,7 +1094,7 @@ function AutoUpdate_Main() {
 			Result=$(GET_VARIABLE "$1" ${Custom_Variable})
 			[[ -z ${Result} ]] && Result=$(GET_VARIABLE "$1" ${Default_Variable})
 			[[ -n ${Result} ]] && echo "${Result}"
-			EXIT 2
+			EXIT
 		;;
 		-v)
 			shift
@@ -1107,7 +1107,7 @@ function AutoUpdate_Main() {
 			*)
 				SHELL_HELP
 			esac
-			EXIT 2
+			EXIT
 		;;
 		-x)
 			shift
@@ -1120,36 +1120,36 @@ function AutoUpdate_Main() {
 			[[ -n ${Custom_Path} ]] && Script_Path=${Custom_Path}
 			[[ -n ${Custom_URL} ]] && Script_URL=${Custom_URL}
 			UPDATE_SCRIPT ${Script_Path} ${Script_URL}
-			EXIT 2
+			EXIT
 		;;
 		-B | --boot-mode)
 			shift
 			[[ ${TARGET_BOARD} != x86 ]] && EXIT 1
 			CHANGE_BOOT $1
-			EXIT 2
+			EXIT
 		;;
 		-C)
 			shift
 			CHANGE_GITHUB $1
-			EXIT 2
+			EXIT
 		;;
 		--help)
 			SHELL_HELP
-			EXIT 2
+			EXIT
 		;;
 		--log)
 			shift
 			LOG $*
-			EXIT 2
+			EXIT
 		;;
 		-O)
 			ANALYSIS_API
 			GET_CLOUD_INFO -a name
-			EXIT 0
+			EXIT
 		;;
 		*)
 			SHELL_HELP
-			EXIT 1
+			EXIT
 		;;
 		esac
 	done
