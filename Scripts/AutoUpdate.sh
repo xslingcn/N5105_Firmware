@@ -364,7 +364,7 @@ function ANALYSIS_API() {
 		}
 		RM ${API_File} && touch -a ${API_File}
 		LOGGER "[ANALYSIS_API] 开始解析 Github API ..."
-		local i=1;while :;do
+		local i=0;while :;do
 			name=$(jsonfilter -i ${API_Dump} -e '@["assets"]' | jsonfilter -e '@['"""$i"""'].name' 2> /dev/null)
 			[[ ! $? == 0 ]] && break
 			if [[ ${name} =~ "AutoBuild-${OP_REPO_NAME}-${TARGET_PROFILE}" || ${name} =~ Update_Logs.json ]]
