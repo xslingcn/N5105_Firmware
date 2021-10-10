@@ -3,7 +3,7 @@
 # AutoUpdate for Openwrt
 # Dependences: bash wget-ssl/wget/uclient-fetch curl openssl jsonfilter
 
-Version=V6.6.5
+Version=V6.6.6
 
 function TITLE() {
 	clear && echo "Openwrt-AutoUpdate Script by Hyy2001 ${Version}"
@@ -111,12 +111,7 @@ function CHECK_ENV() {
 }
 
 function EXIT() {
-	case $1 in
-	0 | 1)
-		LOGGER "[${COMMAND}] 运行结束 $1"
-	;;
-	esac
-	exit
+	exit $1
 }
 
 function ECHO() {
@@ -931,7 +926,6 @@ function NETWORK_CHECK() {
 }
 
 function AutoUpdate_Main() {
-	LOGGER "[${COMMAND}] 开始运行"
 	if [[ ! $1 =~ (-H|--help) ]];then
 		[[ ! -f ${Default_Variable} ]] && {
 			ECHO r "脚本运行环境检测失败,无法正常运行脚本!"
@@ -1053,7 +1047,7 @@ function AutoUpdate_Main() {
 			case "$1" in
 			[Cc]loud)
 				shift
-				ANALYSIS_API
+				ANALYSIS_API > /dev/null 2>&1
 				GET_CLOUD_INFO $* version
 			;;
 			*)
