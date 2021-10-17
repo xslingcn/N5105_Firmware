@@ -9,7 +9,7 @@ AutoBuild-Actions 稳定版/模板地址: [AutoBuild-Actions-Template](https://g
 
 支持的 OpenWrt 源码: `coolsnowwolf/lede`、`immortalwrt/immortalwrt`、`openwrt/openwrt`、`lienol/openwrt`
 
-## 部署环境(STEP 1)
+## 一、部署环境
 
 1. 首先需要获取 **Github Token**: [点击这里](https://github.com/settings/tokens/new) 获取,
 
@@ -23,7 +23,7 @@ AutoBuild-Actions 稳定版/模板地址: [AutoBuild-Actions-Template](https://g
 
    其中`Name`项随意填写,然后将你的 **Token** 粘贴到`Value`项,完成后点击`Add secert`
 
-## 定制固件(STEP 2)(可选,Fork 后可直接开始编译)
+## 二、定制固件(可选,Fork 后可直接开始编译)
 
 1. 进入你的`AutoBuild-Actions`仓库,**下方所有操作都将在你的`AutoBuild-Actions`仓库下进行**
 
@@ -78,7 +78,7 @@ AutoBuild-Actions 稳定版/模板地址: [AutoBuild-Actions-Template](https://g
    带 * 符号的选项表示仅在 coolsnowwolf/lede 源码测试通过,这表示可能在其他源码不能友好地运行
 ```
 
-## 编译固件(STEP 3)
+## 三、开始编译固件
 
    **一键编译** 先删除`第 26-27 行`的注释并保存,单(双)击重新点亮右上角的 **Star** 即可一键编译
 
@@ -96,7 +96,7 @@ AutoBuild-Actions 稳定版/模板地址: [AutoBuild-Actions-Template](https://g
 
 3. 上传修改后的`Update_Logs.json`到你仓库的`Release`
 
-## 使用 AutoUpdate 一键更新脚本:
+## 使用 AutoUpdate 一键更新固件脚本
 
    首先需要打开`TTYD 终端`或者使用`SSH`,按需输入下方指令:
 
@@ -114,7 +114,7 @@ AutoBuild-Actions 稳定版/模板地址: [AutoBuild-Actions-Template](https://g
 
    **注意:** 部分参数可一起使用,例如: `autoupdate -n -P G -F --skip --path /mnt/sda1`
 
-## 使用 tools 固件工具箱:
+## 使用 tools 固件工具箱
 
    打开`TTYD 终端`或者使用`SSH`,执行指令`tools`或`bash /bin/AutoBuild_Tools.sh`即可启动固件工具箱
 
