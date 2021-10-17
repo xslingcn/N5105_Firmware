@@ -23,19 +23,19 @@ AutoBuild-Actions 稳定版/模板地址: [AutoBuild-Actions-Template](https://g
 
    其中`Name`项随意填写,然后将你的 **Token** 粘贴到`Value`项,完成后点击`Add secert`
 
-## 定制固件(STEP 2)
+## 定制固件(STEP 2)(可选,Fork 后可直接开始编译)
 
 1. 进入你的`AutoBuild-Actions`仓库,**下方所有操作都将在你的`AutoBuild-Actions`仓库下进行**
 
-   建议使用`Github Desktop`进行操作,修改文件或者同步最新改动都很方便 [[Github Desktop](https://desktop.github.com/)] [[Notepad++](https://notepad-plus-plus.org/downloads/)]
+   建议使用`Github Desktop`和`Notepad++`进行操作 [[Github Desktop](https://desktop.github.com/)] [[Notepad++](https://notepad-plus-plus.org/downloads/)]
 
-   **提示**: 文中的`TARGET_PROFILE`为设备名称,可以在`.config`中获取,例如: `d-team_newifi-d2`
+   **提示**: 文中的**TARGET_PROFILE**为设备名称,可以在`.config`中获取,例如: `d-team_newifi-d2`、`asus_rt-acrh17`
 
-   本地获取: `egrep -o "CONFIG_TARGET.*DEVICE.*=y" .config | sed -r 's/.*DEVICE_(.*)=y/\1/'`
+   本地获取,在源码目录执行`egrep -o "CONFIG_TARGET.*DEVICE.*=y" .config | sed -r 's/.*DEVICE_(.*)=y/\1/'`
    
-   或者: `grep 'TARGET_PROFILE' .config`,名称中不应含有`DEVICE_`
+   或`grep 'TARGET_PROFILE' .config`
 
-2. 把本地的`.config`文件**重命名**并上传到仓库的`/Configs`目录
+2. 编译`/Configs`目录中对应的配置文件,若设备配置不存在则需要把本地的`.config`文件**重命名**并上传
 
 3. 编辑`/.github/workflows/*.yml`文件,修改`第 7 行`为易于自己识别的名称
 
@@ -45,7 +45,7 @@ AutoBuild-Actions 稳定版/模板地址: [AutoBuild-Actions-Template](https://g
 
    **单独的软件包列表** 按照现有语法和提示编辑`/Scripts/AutoBuild_ExtraPackages.sh`
 
-**AutoBuild_DiyScript.sh: Diy_Core() 函数中的变量解释:**
+**/Scripts/AutoBuild_DiyScript.sh: Diy_Core() 函数中的变量解释:**
 ```
    Author 作者名称,若留空将自动获取为 Github 用户名
    
@@ -55,13 +55,13 @@ AutoBuild-Actions 稳定版/模板地址: [AutoBuild-Actions-Template](https://g
 
    Short_Firmware_Date 简短的固件日期 true: [20210601]; false: [202106012359]
    
-   * Load_Common_Config 通用配置文件,启用后,将在编译开始前被追加到 .config
+   * Load_Common_Config 通用配置文件/Configs/Common,将被追加到当前设备的配置文件中
 
-   * Load_CustomPackages_List 启用后,将自动运行 /Scripts/AutoBuild_ExtraPackages.sh 脚本
+   * Load_CustomPackages_List 启用后,将运行 /Scripts/AutoBuild_ExtraPackages.sh 脚本
 
    Checkout_Virtual_Images 额外上传已检测到的 x86 虚拟磁盘镜像
    
-   Firmware_Format 自定义固件格式,多设备编译请搭配 case 命令使用
+   Firmware_Format 自定义固件格式,多个格式请用空格隔开
 
    REGEX_Skip_Checkout 固件检测屏蔽正则列表,用于过滤无用文件
 
@@ -78,7 +78,7 @@ AutoBuild-Actions 稳定版/模板地址: [AutoBuild-Actions-Template](https://g
    带 * 符号的选项表示仅在 coolsnowwolf/lede 源码测试通过,这表示可能在其他源码不能友好地运行
 ```
 
-## 编译固件(STEP 3):
+## 编译固件(STEP 3)
 
    **一键编译** 先删除`第 26-27 行`的注释并保存,单(双)击重新点亮右上角的 **Star** 即可一键编译
 
@@ -96,7 +96,7 @@ AutoBuild-Actions 稳定版/模板地址: [AutoBuild-Actions-Template](https://g
 
 3. 上传修改后的`Update_Logs.json`到你仓库的`Release`
 
-### 使用 AutoUpdate 一键更新脚本:
+## 使用 AutoUpdate 一键更新脚本:
 
    首先需要打开`TTYD 终端`或者使用`SSH`,按需输入下方指令:
 
@@ -114,7 +114,7 @@ AutoBuild-Actions 稳定版/模板地址: [AutoBuild-Actions-Template](https://g
 
    **注意:** 部分参数可一起使用,例如: `autoupdate -n -P G -F --skip --path /mnt/sda1`
 
-### 使用 tools 固件工具箱:
+## 使用 tools 固件工具箱:
 
    打开`TTYD 终端`或者使用`SSH`,执行指令`tools`或`bash /bin/AutoBuild_Tools.sh`即可启动固件工具箱
 
