@@ -1,4 +1,4 @@
-# Actions for Building OpenWrt / AutoUpdate
+# OpenWrt with AutoUpdate
 
 ![GitHub Stars](https://img.shields.io/github/stars/Hyy2001X/AutoBuild-Actions.svg?style=flat-square&label=Stars&logo=github)
 ![GitHub Forks](https://img.shields.io/github/forks/Hyy2001X/AutoBuild-Actions.svg?style=flat-square&label=Forks&logo=github)
@@ -9,27 +9,13 @@ AutoBuild-Actions 稳定版/模板地址: [AutoBuild-Actions-Template](https://g
 
 支持的 OpenWrt 源码: `coolsnowwolf/lede`、`immortalwrt/immortalwrt`、`openwrt/openwrt`、`lienol/openwrt`
 
-## 一、部署环境
-
-1. 首先需要获取 **Github Token**: [点击这里](https://github.com/settings/tokens/new) 获取,
-
-   `Note`项填写一个名称,`Select scopes`**全部打勾**,完成后点击下方`Generate token`
-
-2. 复制页面中生成的 **Token**,**并保存到本地,Token 只会显示一次!**
-
-3. **Fork** 我的`AutoBuild-Actions`仓库,然后进入你的`AutoBuild-Actions`仓库进行之后的设置
-
-4. 点击上方菜单中的`Settings`,依次点击`Secrets`-`New repository secret`
-
-   其中`Name`项随意填写,然后将你的 **Token** 粘贴到`Value`项,完成后点击`Add secert`
-
-## 二、定制固件(可选,Fork 后可直接开始编译)
+## 一、定制固件(可选,可直接开始编译)
 
 1. 进入你的`AutoBuild-Actions`仓库,**下方所有操作都将在你的`AutoBuild-Actions`仓库下进行**
 
    建议使用`Github Desktop`和`Notepad++`进行操作 [[Github Desktop](https://desktop.github.com/)] [[Notepad++](https://notepad-plus-plus.org/downloads/)]
 
-   **提示**: 文中的**TARGET_PROFILE**为设备名称,可以在`.config`中获取,例如: `d-team_newifi-d2`、`asus_rt-acrh17`
+   **提示**: 下文的**TARGET_PROFILE**为设备名称,可以在本地的`.config`中获取,例如: `d-team_newifi-d2`、`asus_rt-acrh17`
 
    本地获取,在源码目录执行`egrep -o "CONFIG_TARGET.*DEVICE.*=y" .config | sed -r 's/.*DEVICE_(.*)=y/\1/'`
    
@@ -78,21 +64,21 @@ AutoBuild-Actions 稳定版/模板地址: [AutoBuild-Actions-Template](https://g
    带 * 符号的选项表示仅在 coolsnowwolf/lede 源码测试通过,这表示可能在其他源码不能友好地运行
 ```
 
-## 三、开始编译固件
+## 二、编译固件
 
-   **一键编译** 先删除`第 26-27 行`的注释并保存,单(双)击重新点亮右上角的 **Star** 即可一键编译
+   **手动编译** 点击上方`Actions`,在左栏选择要编译的设备,点击右方`Run workflow`再点击绿色按钮即可开始编译
 
-   **定时编译** 先删除`第 23-24 行`的注释,然后按需修改相关参数并保存,[使用方法](https://www.runoob.com/w3cnote/linux-crontab-tasks.html)
+   **一键编译** 删除`第 26-27 行`的注释并保存,单(双)击重新点亮右上角的 **Star** 即可一键编译
 
-   **手动编译** 点击上方`Actions`,选择你要编译的设备名称,点击右方`Run workflow`,点击绿色按钮即可开始编译
-   
-   **临时修改 IP 地址** 该功能仅在**手动编译**时生效,点击`Run workflow`后即可输入 IP 地址(优先级**高于** `Default_LAN_IP`)
+   **定时编译** 删除`第 23-24 行`的注释,然后按需修改时间并提交修改 [Corn 使用方法](https://www.runoob.com/w3cnote/linux-crontab-tasks.html)
+
+   **自定义固件 IP 地址** 该功能仅在**手动编译**生效,点击`Run workflow`后即可输入 IP 地址
 
 ## 部署云端日志(可选)
 
 1. 下载本仓库中的 [Update_Logs.json](https://github.com/Hyy2001X/AutoBuild-Actions/releases/download/AutoUpdate/Update_Logs.json) 到本地
 
-2. 以 **JSON 格式**修改已下载到本地的`Update_Logs.json`文件
+2. 以**JSON 格式**编辑`Update_Logs.json`
 
 3. 上传修改后的`Update_Logs.json`到你仓库的`Release`
 
