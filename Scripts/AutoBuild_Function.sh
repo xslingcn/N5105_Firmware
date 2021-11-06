@@ -129,6 +129,10 @@ Firmware-Diy_Main() {
 			sed -i '\/etc\/firewall.user/d;/exit 0/d' ${Version_File}
 			cat >> ${Version_File} <<EOF
 
+sed -i 's#mirrors.cloud.tencent.com/lede#downloads.immortalwrt.cnsztl.eu.org#g' /etc/opkg/distfeeds.conf
+sed -i 's#18.06.9/##g' /etc/opkg/distfeeds.conf
+sed -i 's#releases/#snapshots/#g' /etc/opkg/distfeeds.conf
+
 sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/aliyundrive-webdav.lua
 sed -i 's/services/nas/g' /usr/lib/lua/luci/view/aliyundrive-webdav/aliyundrive-webdav_log.htm
 sed -i 's/services/nas/g' /usr/lib/lua/luci/view/aliyundrive-webdav/aliyundrive-webdav_status.htm
@@ -145,8 +149,8 @@ if [ -z "$(grep "REDIRECT --to-ports 53" /etc/firewall.user)" ]
 then
 	echo '#iptables -t nat -A PREROUTING -p udp --dport 53 -j REDIRECT --to-ports 53' >> /etc/firewall.user
 	echo '#iptables -t nat -A PREROUTING -p tcp --dport 53 -j REDIRECT --to-ports 53' >> /etc/firewall.user
-	echo '#[ -n '"$(command -v ip6tables)"' ] && ip6tables -t nat -A PREROUTING -p udp --dport 53 -j REDIRECT --to-ports 53' >> /etc/firewall.user
-	echo '#[ -n '"$(command -v ip6tables)"' ] && ip6tables -t nat -A PREROUTING -p tcp --dport 53 -j REDIRECT --to-ports 53' >> /etc/firewall.user
+	echo '#[ -n "\$(command -v ip6tables)" ] && ip6tables -t nat -A PREROUTING -p udp --dport 53 -j REDIRECT --to-ports 53' >> /etc/firewall.user
+	echo '#[ -n "\$(command -v ip6tables)" ] && ip6tables -t nat -A PREROUTING -p tcp --dport 53 -j REDIRECT --to-ports 53' >> /etc/firewall.user
 fi
 exit 0
 EOF
@@ -269,6 +273,11 @@ EOF
 		fi
 		sed -i '/## TEST/d' .config >/dev/null 2>&1
 	fi
+	cat >> .config <<EOF
+
+CONFIG_KERNEL_BUILD_USER="${Author}"
+CONFIG_KERNEL_BUILD_DOMAIN="${Github}"
+EOF
 	ECHO "[Firmware-Diy_Other] Done."
 }
 
