@@ -145,7 +145,7 @@ sed -i 's/services/vpn/g' /usr/lib/lua/luci/view/v2ray_server/users_list_status.
 sed -i 's/services/vpn/g' /usr/lib/lua/luci/view/v2ray_server/users_list_status.htm
 sed -i 's/services/vpn/g' /usr/lib/lua/luci/view/v2ray_server/v2ray.htm
 
-if [ -z "$(grep "REDIRECT --to-ports 53" /etc/firewall.user)" ]
+if [ -z "\$(grep "REDIRECT --to-ports 53" /etc/firewall.user 2> /dev/null)" ]
 then
 	echo '#iptables -t nat -A PREROUTING -p udp --dport 53 -j REDIRECT --to-ports 53' >> /etc/firewall.user
 	echo '#iptables -t nat -A PREROUTING -p tcp --dport 53 -j REDIRECT --to-ports 53' >> /etc/firewall.user
