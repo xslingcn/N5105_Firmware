@@ -298,8 +298,8 @@ function UPDATE_SCRIPT() {
 	DOWNLOADER --file-name AutoUpdate.sh --no-url-name --dl ${DOWNLOADERS} --url "$2" --path /tmp --timeout 5 --type 脚本
 	if [[ -s /tmp/AutoUpdate.sh ]];then
 		chmod +x /tmp/AutoUpdate.sh
-		Script_Version=$(egrep -o "V[0-9]+.[0-9].+" /tmp/AutoUpdate.sh | awk 'NR==1')
-		Banner_Version=$(egrep -o "V[0-9]+.[0-9].+" /etc/banner)
+		Script_Version=$(awk -F '=' '/Version/{print $2}' /tmp/AutoUpdate.sh | awk 'NR==1')
+		Banner_Version=$(egrep -o "V[0-9.]+" /etc/banner)
 		mv -f /tmp/AutoUpdate.sh $1
 		ECHO "脚本保存路径: [$1]"
 		[[ -n ${Banner_Version} && $1 == /bin ]] && sed -i "s?${Banner_Version}?${Script_Version}?g" /etc/banner
