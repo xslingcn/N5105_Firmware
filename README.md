@@ -3,25 +3,25 @@
 ![GitHub Stars](https://img.shields.io/github/stars/Hyy2001X/AutoBuild-Actions.svg?style=flat-square&label=Stars&logo=github)
 ![GitHub Forks](https://img.shields.io/github/forks/Hyy2001X/AutoBuild-Actions.svg?style=flat-square&label=Forks&logo=github)
 
-AutoBuild-Actions 稳定版/模板地址: [AutoBuild-Actions-Template](https://github.com/Hyy2001X/AutoBuild-Actions-Template)
+AutoBuild-Actions 稳定版仓库地址: [AutoBuild-Actions-Template](https://github.com/Hyy2001X/AutoBuild-Actions-Template)
 
 自用修改版软件包地址: [AutoBuild-Packages](https://github.com/Hyy2001X/AutoBuild-Packages)
 
 支持的 OpenWrt 源码: `coolsnowwolf/lede`、`immortalwrt/immortalwrt`、`openwrt/openwrt`、`lienol/openwrt`
 
-❗**为了你的账号安全, 请不要使用 SSH 连接 Github Action**, `.config`配置等操作请在本地完成
+🔔 **为了你的账号安全, 请不要使用 SSH 连接 Github Action**, `.config`配置等操作请在本地完成
 
 ## 一、定制固件(可选)
 
-1. 进入你的`AutoBuild-Actions`仓库, **下方所有操作都将在你的`AutoBuild-Actions`仓库下进行**
-
-   建议使用`Github Desktop`和`Notepad++`进行操作 [[Github Desktop](https://desktop.github.com/)] [[Notepad++](https://notepad-plus-plus.org/downloads/)]
-
-   **提示**: 文中的 **TARGET_PROFILE** 均为你要编译的设备的设备名称, 例如: `d-team_newifi-d2`、`asus_rt-acrh17`
+   🎈 **提示**: 文中的 **TARGET_PROFILE** 均为你要编译的设备的设备名称, 例如: `d-team_newifi-d2`、`asus_rt-acrh17`
 
    从本地获取: 在源码目录执行`egrep -o "CONFIG_TARGET.*DEVICE.*=y" .config | sed -r 's/.*DEVICE_(.*)=y/\1/'`
    
    或执行`grep 'TARGET_PROFILE' .config`, 请先执行`make menuconfig`进行配置
+
+1. 进入你的`AutoBuild-Actions`仓库, **下方所有操作都将在你的`AutoBuild-Actions`仓库下进行**
+
+   建议使用`Github Desktop`和`Notepad++`进行操作 [[Github Desktop](https://desktop.github.com/)] [[Notepad++](https://notepad-plus-plus.org/downloads/)]
 
 2. 编译`/Configs`目录下的配置文件, 若该设备的配置文件不存在则需要把本地的`.config`文件重命名为 **TARGET_PROFILE** 值并上传
 
@@ -84,11 +84,13 @@ AutoBuild-Actions 稳定版/模板地址: [AutoBuild-Actions-Template](https://g
 
 3. 上传修改后的`Update_Logs.json`到你仓库的`Release`
 
+4. 在本地执行`autoupdate`测试
+
 ## 使用一键更新固件脚本
 
    首先需要打开`TTYD 终端`或者使用`SSH`, 按需输入下方指令:
 
-   更新固件: `autoupdate`或`bash /bin/AutoUpdate.sh`
+   常规更新固件: `autoupdate`或完整指令`bash /bin/AutoUpdate.sh`
 
    使用镜像加速更新固件: `autoupdate -P`
 
