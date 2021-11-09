@@ -3,7 +3,7 @@
 # AutoUpdate for Openwrt
 # Dependences: bash wget-ssl/wget/uclient-fetch curl openssl jsonfilter
 
-Version=V6.7
+Version=V6.7.1
 
 function TITLE() {
 	clear && echo "Openwrt-AutoUpdate Script by Hyy2001 ${Version}"
@@ -19,12 +19,12 @@ function SHELL_HELP() {
 更新固件:
 	-n			不保留配置更新固件 *
 	-u			适用于定时更新 LUCI 的参数 *
-	-f			跳过版本号、SHA256 校验,并强制刷写固件 (危险) *
+	-f			跳过版本号校验,并强制刷写固件 (不推荐) *
 	-F, --force-write	强制刷写固件 *
 	-P, --proxy		优先开启镜像加速下载固件 *
 	-D <Downloader>		使用指定的下载器 <wget-ssl | wget | curl | uclient-fetch> *
 	--decompress		解压 img.gz 固件后再更新固件 *
-	--skip-verify		跳过固件 SHA256 校验 (危险) *
+	--skip-verify		跳过固件 SHA256 校验 *
 	--path <PATH>		保存固件到提供的绝对路径 <PATH> *
 
 更新脚本:
@@ -46,7 +46,7 @@ function SHELL_HELP() {
 	--fw-log < | [Cc]loud | *>	打印 <当前 | 云端 | 指定版本> 版本的固件更新日志
 	--list				打印当前系统信息
 	--var <VARIABLE>		打印用户指定的环境变量 <VARIABLE>
-	--verbose			打印详细的下载信息 *
+	--verbose			打印详细下载信息 *
 	-v < | [Cc]loud>		打印 <当前 | 云端> AutoUpdate.sh 版本
 	-V < | [Cc]loud>		打印 <当前 | 云端> 固件版本
 
@@ -541,7 +541,7 @@ function UPGRADE() {
 	CLOUD_FW_Date=$(GET_FW_INFO 5)
 	CLOUD_FW_Size=$(GET_FW_INFO 6)
 	CLOUD_FW_Url=$(GET_FW_INFO 7)
-	[[ -z ${CLOUD_FW_Name} ]] && {
+	[[ -z ${CLOUD_FW_Name} || -z ${CLOUD_FW_Url} ]] && {
 		ECHO r "云端固件信息获取失败!"
 		EXIT 2
 	}
@@ -558,7 +558,7 @@ function UPGRADE() {
 	cat <<EOF
 
 设备名称: ${TARGET_PROFILE}
-内核版本: $(uname -r)
+内核版本: $(uname -sr)
 $([[ ${TARGET_BOARD} == x86 ]] && echo "固件格式: ${Firmware_Format} / ${x86_Boot}" || echo "固件格式: ${Firmware_Format}")
 
 $(echo -e "当前固件版本: ${CURRENT_Version}${CURRENT_Type}")
@@ -566,7 +566,7 @@ $(echo -e "云端固件版本: ${CLOUD_FW_Version}${CHECKED_Type}")
 
 云端固件名称: ${CLOUD_FW_Name}
 云端固件体积: ${CLOUD_FW_Size}
-固件下载人数: ${CLOUD_FW_Count}
+固件下载次数: ${CLOUD_FW_Count}
 EOF
 	LOGGER "当前版本: ${CURRENT_Version}"
 	LOGGER "云端版本: ${CLOUD_FW_Version}"
@@ -600,13 +600,14 @@ EOF
 	esac
 	DOWNLOADER --file-name ${CLOUD_FW_Name} --no-url-name --dl ${DOWNLOADERS} --url ${URL} --path ${Firmware_Path} --timeout 5 --type 固件
 	[[ ! -s ${Firmware_Path}/${CLOUD_FW_Name} ]] && EXIT 1
-	if [[ ! Force_Mode == 1 ]];then
-		LOCAL_SHA256=$(GET_SHA256SUM ${Firmware_Path}/${CLOUD_FW_Name} 5)
-		[[ ${LOCAL_SHA256} != ${CLOUD_FW_SHA256} ]] && {
+	if [[ ! ${Skip_Verify} == 1 ]];then
+		[[ $(GET_SHA256SUM ${Firmware_Path}/${CLOUD_FW_Name} 5) != ${CLOUD_FW_SHA256} ]] && {
 			ECHO r "SHA256 校验失败,请检查网络后重试!"
 			EXIT 2
 		}
 		LOGGER "固件 SHA256 比对通过!"
+	else
+		LOGGER "跳过 SHA256 校验 ..."
 	fi
 	case "${Firmware_Format}" in
 	img.gz)
@@ -868,7 +869,8 @@ function LOG() {
 }
 
 URL_X() {
-	#URL_X https://raw.githubusercontent.com/Hyy2001X/AutoBuild-Actions/master/Scripts/AutoUpdate.sh F@@1 G@@1 X@@1 
+	# URL_X https://raw.githubusercontent.com/Hyy2001X/AutoBuild-Actions/master/Scripts/AutoUpdate.sh F@@1 G@@1 X@@1
+	# Support for Github URL
 	local URL=$1 Type URL_Final
 	[[ ${URL} =~ raw.githubusercontent.com ]] && Type=raw
 	[[ ${URL} =~ releases/download ]] && Type=release
