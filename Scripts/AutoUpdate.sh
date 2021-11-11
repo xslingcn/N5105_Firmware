@@ -3,7 +3,7 @@
 # AutoUpdate for Openwrt
 # Dependences: bash wget-ssl/wget/uclient-fetch curl openssl jsonfilter
 
-Version=V6.7.1
+Version=V6.7.2
 
 function TITLE() {
 	clear && echo "Openwrt-AutoUpdate Script by Hyy2001 ${Version}"
@@ -408,7 +408,7 @@ function GET_CLOUD_LOG() {
 	[[ -s ${Tmp_Path}/Update_Logs.json ]] && {
 		Result=$(jsonfilter -i ${Tmp_Path}/Update_Logs.json -e '@["'""${TARGET_PROFILE}""'"]["'""${Version}""'"]' 2> /dev/null)
 		[[ -n ${Result} ]] && {
-			echo -e "\n${Grey}${Version} for ${TARGET_PROFILE} 更新日志:"
+			echo -e "\n${Grey}${Version} 固件更新日志:"
 			echo -e "\n${Green}${Result}${White}"
 		} || LOGGER "未获取到当前固件的日志信息!"
 	}
