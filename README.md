@@ -9,7 +9,16 @@ AutoBuild-Actions 稳定版仓库地址: [AutoBuild-Actions-Template](https://gi
 
 支持的 OpenWrt 源码: `coolsnowwolf/lede`、`immortalwrt/immortalwrt`、`openwrt/openwrt`、`lienol/openwrt`
 
-🔔 **为了你的账号安全, 请不要使用 SSH 连接 Github Action**, `.config`配置等操作请在本地完成
+## 维护设备列表
+
+| 机型 | 配置文件 | 拥有设备 |
+| :----: | :----: | :----: |
+| x86 软路由 | x86_64 | ✔ |
+| 新路由3 | d-team_newifi-d2 | ✔ |
+| 华硕 acrh17 | asus_rt-acrh17 | ❌ |
+| 竞斗云 2.0 | p2w_r619ac-128m | ❌ |
+| 红米 AC2100 | xiaomi_redmi-router-ac2100 | ✔ |
+| 小娱C1/3/5 | xiaoyu_xy-c5 | ❌ |
 
 ## 一、定制固件(可选)
 
@@ -75,6 +84,8 @@ AutoBuild-Actions 稳定版仓库地址: [AutoBuild-Actions-Template](https://gi
    **定时编译** 删除`第 23-24 行`的注释, 然后按需修改时间并提交修改 [Corn 使用方法](https://www.runoob.com/w3cnote/linux-crontab-tasks.html)
 
    **自定义固件 IP 地址** 该功能仅在**手动编译**生效, 点击`Run workflow`后即可输入 IP 地址
+
+   🔔 **为了你的账号安全, 请不要使用 SSH 连接 Github Action**, `.config`配置等操作请在本地完成
 
 ## 部署云端日志(可选)
 
