@@ -82,7 +82,6 @@ OP_REPO_NAME=${OP_REPO_NAME}
 EOF
 	cat >> ${Home}/VARIABLE_FILE <<EOF
 Home=${Home}
-Load_Common_Config=${Load_Common_Config}
 PKG_Compatible="${INCLUDE_Obsolete_PKG_Compatible}"
 Checkout_Virtual_Images="${Checkout_Virtual_Images}"
 Firmware_Path=${Home}/bin/targets/${TARGET_BOARD}/${TARGET_SUBTARGET}
@@ -130,9 +129,9 @@ Firmware-Diy_Main() {
 			cat >> ${Version_File} <<EOF
 
 sed -i '/check_signature/d' /etc/opkg.conf
-sed -i 's#mirrors.cloud.tencent.com/lede#downloads.immortalwrt.cnsztl.eu.org#g' /etc/opkg/distfeeds.conf
-sed -i 's#18.06.9/##g' /etc/opkg/distfeeds.conf
-sed -i 's#releases/#snapshots/#g' /etc/opkg/distfeeds.conf
+# sed -i 's#mirrors.cloud.tencent.com/lede#downloads.immortalwrt.cnsztl.eu.org#g' /etc/opkg/distfeeds.conf
+# sed -i 's#18.06.9/##g' /etc/opkg/distfeeds.conf
+# sed -i 's#releases/#snapshots/#g' /etc/opkg/distfeeds.conf
 
 sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/aliyundrive-webdav.lua
 sed -i 's/services/nas/g' /usr/lib/lua/luci/view/aliyundrive-webdav/aliyundrive-webdav_log.htm
@@ -266,13 +265,6 @@ EOF
 		else
 			ECHO "[${OP_Maintainer}]: Current Source_Maintainer is not supported ..."
 		fi
-	fi
-	if [[ ${Load_Common_Config} == true ]];then
-		if [[ -s $GITHUB_WORKSPACE/Configs/Common || ! "$(cat .config)" =~ "## TEST" ]];then
-			ECHO "Merging [Configs/Common] to .config ..."
-			echo -e "\n$(cat $GITHUB_WORKSPACE/Configs/Common)" >> .config
-		fi
-		sed -i '/## TEST/d' .config >/dev/null 2>&1
 	fi
 	cat >> .config <<EOF
 
