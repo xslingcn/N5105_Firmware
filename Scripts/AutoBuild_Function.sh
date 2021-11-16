@@ -176,38 +176,6 @@ EOF
 		;;
 		esac
 	fi
-	[[ ${INCLUDE_Argon} == true ]] && {
-		case "${OP_Maintainer}/${OP_REPO_NAME}:${OP_BRANCH}" in
-		coolsnowwolf/lede:master)
-			AddPackage git lean luci-theme-argon jerrykuku 18.06
-		;;
-		[Ll]ienol/openwrt:main)
-			AddPackage git other luci-theme-argon jerrykuku master
-		;;
-		[Ll]ienol/openwrt:19.07)
-			AddPackage git other luci-theme-argon jerrykuku v2.2.5
-		;;
-		*)
-			[[ ! ${OP_Maintainer}/${OP_REPO_NAME} = immortalwrt/immortalwrt ]] && {
-				case "${OP_BRANCH}" in
-				19.07)
-					AddPackage git other luci-theme-argon jerrykuku v2.2.5
-				;;
-				21.02)
-					AddPackage git other luci-theme-argon jerrykuku master
-				;;
-				18.06)
-					AddPackage git other luci-theme-argon jerrykuku 18.06
-				;;
-				esac
-			} || {
-				ECHO "[${OP_Maintainer}/${OP_REPO_NAME}:${OP_BRANCH}]: Current Source is not supported ..."
-				Argon_Controller=1
-			}
-		;;
-		esac
-		[[ ${Argon_Controller} == 1 ]] && AddPackage git other luci-app-argon-config jerrykuku master
-	}
 	[[ -n ${Before_IP_Address} ]] && Default_LAN_IP="${Before_IP_Address}"
 	[[ -n ${Default_LAN_IP} && ${Default_LAN_IP} =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]] && {
 		Old_IP_Address=$(awk -F '[="]+' '/ipaddr:-/{print $3}' ${base_files}/bin/config_generate | awk 'NR==1')
