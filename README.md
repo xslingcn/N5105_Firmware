@@ -51,8 +51,6 @@ AutoBuild-Actions 稳定版仓库地址: [AutoBuild-Actions-Template](https://gi
    * Default_LAN_IP 固件 IP 地址
 
    Short_Firmware_Date 启用简短的固件日期 true: [20210601]; false: [202106012359]
-   
-   * Load_Common_Config 位于 /Configs/Common 的通用配置文件, 将被追加到当前设备的配置文件中
 
    * Load_CustomPackages_List 启用后, 将运行 /Scripts/AutoBuild_ExtraPackages.sh 脚本
 
@@ -65,8 +63,6 @@ AutoBuild-Actions 稳定版仓库地址: [AutoBuild-Actions-Template](https://gi
    * INCLUDE_AutoBuild_Features 自动添加 AutoBuild 固件特性, 例如: 一键更新、部分优化
 
    * INCLUDE_DRM_I915 自动启用 x86 设备的 Intel Graphics 显卡驱动
-
-   INCLUDE_Argon 自动添加 luci-theme-argon 主题和主题控制器
 
    INCLUDE_Obsolete_PKG_Compatible 完善原生 OpenWrt-19.07、21.02 支持 (测试特性)
    
