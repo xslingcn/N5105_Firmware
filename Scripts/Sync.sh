@@ -1,22 +1,21 @@
 #!/bin/bash
 # AutoBuild Module by Hyy2001 <https://github.com/Hyy2001X/AutoBuild-Actions>
-# Thanks 281677160 and TobKed/github-forks-sync-action.git
+# Thanks to 281677160 and TobKed
 # Sync
 
 # 上游仓库与分支
 INPUT_UPSTREAM_REPOSITORY=Hyy2001X/AutoBuild-Actions
 INPUT_UPSTREAM_BRANCH=master
 
-# 文件同步列表,按需修改
+# 需要文件的同步列表, 按需修改
 Sync_List=(
 	# .github/workflows/*
 	# Configs/*
 	CustomFiles/Depends/*
 	CustomFiles/Patches/*
-	CustomFiles/mac80211_d-team_newifi-d2.patch
-	CustomFiles/system_d-team_newifi-d2
+	CustomFiles/d-team_newifi-d2_mac80211.patch
+	CustomFiles/d-team_newifi-d2_system
 	# Scripts/AutoBuild_DiyScript.sh
-	# Scripts/AutoBuild_ExtraPackages.sh
 	# Scripts/Sync.sh
 	Scripts/AutoBuild_Function.sh
 	Scripts/AutoUpdate.sh
