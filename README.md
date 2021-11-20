@@ -13,12 +13,12 @@ AutoBuild-Actions 稳定版仓库地址: [AutoBuild-Actions-Template](https://gi
 
 | 机型 | 配置文件 | 拥有设备 |
 | :----: | :----: | :----: |
-| x86_64 | x86_64 | ✅ |
-| 新路由3 | d-team_newifi-d2 | ✅ |
-| 华硕 acrh17 | asus_rt-acrh17 | ❎ |
-| 竞斗云 2.0 | p2w_r619ac-128m | ❎ |
-| 红米 AC2100 | xiaomi_redmi-router-ac2100 | ✅ |
-| 小娱C1/3/5 | xiaoyu_xy-c5 | ❎ |
+| [x86_64](./.github/workflows/AutoBuild-x86_64.yml) | [x86_64](./Configs/x86_64) | ✅ |
+| [新路由3](./.github/workflows/AutoBuild-d-team_newifi-d2.yml) | [d-team_newifi-d2](./Configs/d-team_newifi-d2 "点击") | ✅ |
+| [华硕 acrh17](./.github/workflows/AutoBuild-asus_rt-acrh17.yml) | [asus_rt-acrh17](./Configs/asus_rt-acrh17) | ❎ |
+| [竞斗云 2.0](./.github/workflows/AutoBuild-p2w_r619ac-128m.yml) | [p2w_r619ac-128m](./Configs/p2w_r619ac-128m) | ❎ |
+| [红米 AC2100](./.github/workflows/AutoBuild-xiaomi_redmi-router-ac2100.yml) | [xiaomi_redmi-router-ac2100](./Configs/xiaomi_redmi-router-ac2100) | ✅ |
+| [小娱C1/3/5](./.github/workflows/AutoBuild-xiaoyu_xy-c5.yml) | [xiaoyu_xy-c5](./Configs/xiaoyu_xy-c5) | ❎ |
 
 ## 一、定制固件(可选)
 
@@ -38,7 +38,7 @@ AutoBuild-Actions 稳定版仓库地址: [AutoBuild-Actions-Template](https://gi
 
 4. 编辑`/.github/workflows/某设备.yml`文件, 修改`第 32 行`为上传的`.config`配置文件名称
 
-5. 按照需求且编辑`/Scripts/AutoBuild_DiyScript.sh`文件即可, `/Scripts`下的其他文件无需修改
+5. 按照需求且编辑 [/Scripts/AutoBuild_DiyScript.sh](./Scripts/AutoBuild_DiyScript.sh), `/Scripts`下的其他文件无需修改
 
 **/Scripts/AutoBuild_DiyScript.sh: Firmware_Diy_Core() 函数中的变量解释:**
 ```
