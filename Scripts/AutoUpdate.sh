@@ -1,9 +1,9 @@
 #!/bin/bash
 # AutoBuild Module by Hyy2001 <https://github.com/Hyy2001X/AutoBuild-Actions>
 # AutoUpdate for Openwrt
-# Dependences: bash wget-ssl/wget/uclient-fetch curl openssl jsonfilter
+# Dependences: bash wget-ssl/wget/uclient-fetch curl openssl jsonfilter expr
 
-Version=V6.7.6
+Version=V6.7.7
 
 function TITLE() {
 	clear && echo "Openwrt-AutoUpdate Script by Hyy2001 ${Version}"
@@ -87,10 +87,10 @@ function MEMINFO() {
 	local Mem Swap All Result
 	Mem=$(free | grep Mem: | awk '{Mem=$7/1024} {printf("%.0f\n",Mem)}' 2> /dev/null)
 	Swap=$(free | grep Swap: | awk '{Swap=$4/1024} {printf("%.0f\n",Swap)}' 2> /dev/null)
-	All=$(echo ${Mem} + ${Swap} | bc 2> /dev/null)
+	All=$(expr ${Mem} + ${Swap} 2> /dev/null)
 	case $1 in
 	1)
-	Result=${Mem}
+		Result=${Mem}
 	;;
 	2)
 		Result=${Swap}
@@ -105,6 +105,7 @@ function MEMINFO() {
 		echo ${Result}
 		return 0
 	else
+		LOGGER "[MEMINFO] [$1] 可用运行内存获取失败!"
 		return 1
 	fi
 }
@@ -604,7 +605,7 @@ function UPGRADE() {
 	LOGGER "固件更新指令: [${Upgrade_Option}]"
 	[[ -n "${Special_Commands}" ]] && ECHO g "特殊指令:${Special_Commands} / ${Upgrade_Option}"
 	ECHO g "执行: ${MSG}${Special_MSG}"
-	if [[ $(CHECK_PKG curl) == true && -z ${Proxy_Type} ]];then
+	if [[ -z ${Proxy_Type} ]];then
 		[[ $(GOOGLE_CHECK) != true ]] && {
 			ECHO r "Google 连接测试失败,优先使用镜像加速下载!"
 			Proxy_Type="All"
@@ -753,7 +754,7 @@ function DOWNLOADER() {
 			shift
 			while [[ $1 ]];do	
 				case "$1" in
-				wget-ssl | curl | wget | uclient-fetch)
+				*wget-ssl* | *curl | *uclient-fetch)
 					[[ $(CHECK_PKG $1) == true ]] && {
 						DL_Downloader="$1"
 						break
@@ -854,14 +855,14 @@ function DOWNLOADER() {
 		esac
 	done
 	case "${DL_Downloader}" in
-	wget | wget-ssl)
-		DL_Template="$(which wget) --quiet --no-check-certificate -x -4 --tries 1 --timeout 10 -O"
+	*wget*)
+		DL_Template="$(command -v wget) --quiet --no-check-certificate -x -4 --tries 1 --timeout 10 -O"
 	;;
-	curl)
-		DL_Template="$(which curl) --silent --insecure -L -k --connect-timeout 10 --retry 1 -o"
+	*curl)
+		DL_Template="$(command -v curl) --silent --insecure -L -k --connect-timeout 10 --retry 1 -o"
 	;;
-	uclient-fetch)
-		DL_Template="$(which uclient-fetch) --quiet --no-check-certificate -4 --timeout 10 -O"
+	*uclient-fetch)
+		DL_Template="$(command -v uclient-fetch) --quiet --no-check-certificate -4 --timeout 10 -O"
 	;;
 	esac
 	[[ ${Test_Mode} == 1  || ${Verbose_Mode} == 1 ]] && {
@@ -1117,11 +1118,11 @@ function AutoUpdate_Main() {
 		;;
 		--check)
 			shift
-			CHECK_DEPENDS bash uclient-fetch curl wget openssl jsonfilter
+			CHECK_DEPENDS bash uclient-fetch curl wget openssl jsonfilter expr
 			[[ $(NETWORK_CHECK www.baidu.com 2) == false ]] && {
 				ECHO r "基础网络连接错误!"
 			} || ECHO y "基础网络连接正常!"
-			[[ $(GOOGLE_CHECK ) == false ]] && {
+			[[ $(GOOGLE_CHECK) == false ]] && {
 				ECHO r "Google 连接错误!"
 			} || ECHO y "Google 连接正常!"
 			CHECK_ENV ${ENV_DEPENDS[@]}
@@ -1263,7 +1264,7 @@ ENV_DEPENDS=(
 	OP_BRANCH
 	OP_REPO
 )
-DOWNLOADERS="wget-ssl curl wget uclient-fetch"
+DOWNLOADERS="$(command -v wget-ssl) $(command -v curl) $(command -v wget) $(command -v uclient-fetch)"
 REGEX_Format=".vdi|.vhdx|.vmdk|kernel|rootfs|factory"
 
 White="\e[0m"
