@@ -3,7 +3,7 @@
 # AutoUpdate for Openwrt
 # Dependences: wget-ssl/wget/uclient-fetch curl jq expr sysupgrade
 
-Version=V6.8.0
+Version=V6.8.1
 
 function TITLE() {
 	clear && echo "Openwrt-AutoUpdate Script by Hyy2001 ${Version}"
@@ -585,7 +585,7 @@ function UPGRADE() {
 			Special_Commands="${Special_Commands} [镜像加速 ${Proxy_Type}]"
 		;;
 		-D)
-			DL_DEPENDS[@]="$2"
+			DL_DEPENDS=($2)
 			Special_Commands="${Special_Commands} [$1 ${DL_DEPENDS[@]}]"
 			shift
 		;;
@@ -1084,8 +1084,8 @@ function AutoUpdate_Main() {
 		;;
 		-D)
 			case "${Input[$((${E} + 1))]}" in
-			wget | curl | wget-ssl | uclient-fetch)
-				DL_DEPENDS[@]=${Input[$((${E} + 1))]}
+			wget* | curl | uclient-fetch)
+				DL_DEPENDS=(${Input[$((${E} + 1))]})
 			;;
 			*)
 				ECHO r "暂不支持当前下载器: [${Input[$((${E} + 1))]}]"
