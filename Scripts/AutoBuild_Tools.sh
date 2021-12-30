@@ -3,7 +3,7 @@
 # AutoBuild_Tools for Openwrt
 # Dependences: bash wget curl block-mount e2fsprogs smartmontools
 
-Version=V1.8.1
+Version=V1.8.2
 
 ECHO() {
 	case $1 in
@@ -541,35 +541,31 @@ SmartInfo_Core() {
 	Phy_Health=$(GET_INFO "SMART Health Status:")
 	[[ -z ${Phy_Health} ]] && Phy_Health=$(GET_INFO "SMART overall-health self-assessment test result:")
 	Phy_Name=$(GET_INFO "Device Model:")
+	FW_Version=$(GET_INFO "Firmware Version:")
 	Phy_Temp=$(grep "Temperature_Celsius" ${Smart_Info3} | awk '{print $10}')
-	[[ -n ${Phy_Temp} ]] && Phy_Temp="${Phy_Temp}°C" || Phy_Temp="未知"
+	[[ -n ${Phy_Temp} ]] && Phy_Temp="${Phy_Temp}°C"
 	Phy_ID=$(GET_INFO "Serial number:")
 	Phy_Capacity=$(GET_INFO "User Capacity:")
 	Phy_Part_Number=$(grep -c "${Phy_Disk}" ${Disk_Processed_List})
 	Phy_Factor=$(GET_INFO "Form Factor:")
-	[[ -z ${Phy_Factor} ]] && Phy_Factor="未知"
 	Phy_Sata_Version=$(GET_INFO "SATA Version is:")
-	[[ -z ${Phy_Sata_Version} ]] && Phy_Sata_Version="未知"
 	TRIM_Command=$(GET_INFO "TRIM Command:")
-	[[ -z ${TRIM_Command} ]] && TRIM_Command="不可用"
 	Power_On=$(grep "Power_On_Hours" ${Smart_Info3} | awk '{print $10}')
 	Power_Cycle_Count=$(grep "Power_Cycle_Count" ${Smart_Info3} | awk '{print $10}')
-	if [[ -z ${Power_On} ]]
+	if [[ -n ${Power_On} ]]
 	then
-		Power_Status="未知"
-	else
 		Power_Status="${Power_On} 小时 / ${Power_Cycle_Count} 次"
 	fi
 	if [[ $(GET_INFO "Rotation Rate:") =~ "Solid State" ]];then
 		Phy_Type="固态硬盘"
 		Phy_RPM="不可用"
+		local LBAs_Written="$(grep "Total_LBAs_Written" ${Smart_Info3} | awk '{a=$10*512/1024/1024} {printf("%.2f",a)}') GB"
+		local LBAs_Read="$(grep "Total_LBAs_Read" ${Smart_Info3} | awk '{a=$10*512/1024/1024} {printf("%.2f",a)}') GB"
 	else
 		Phy_Type="其他"
 		if [[ $(GET_INFO "Rotation Rate:") =~ rpm ]];then
 			Phy_RPM=$(GET_INFO "Rotation Rate:")
 			Phy_Type="机械硬盘"
-		else
-			Phy_RPM="不可用"
 		fi
 	fi
 	[[ -z ${Phy_Name} ]] && {
@@ -585,6 +581,7 @@ SmartInfo_Core() {
 	cat <<EOF
 
 	硬盘型号: ${Phy_Name}
+	固件版本: ${FW_Version}
 	硬盘温度: ${Phy_Temp}
 	硬盘路径: $1
 	分区数量: ${Phy_Part_Number}
@@ -598,9 +595,10 @@ SmartInfo_Core() {
 	硬盘转速: ${Phy_RPM}
 	扇区大小: ${Phy_BS}
 	通电情况: ${Power_Status}
+	读取计数: ${LBAs_Read}
+	写入计数: ${LBAs_Written} 
 
 ===========================================================
-
 EOF
 }
 
