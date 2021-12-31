@@ -3,7 +3,7 @@
 # AutoUpdate for Openwrt
 # Dependences: wget-ssl/wget/uclient-fetch curl jq expr sysupgrade
 
-Version=V6.8.2
+Version=V6.8.3
 
 function TITLE() {
 	clear && echo "Openwrt-AutoUpdate Script by Hyy2001 ${Version}"
@@ -65,6 +65,7 @@ function SHOW_VARIABLE() {
 
 设备名称:		$(uname -n) / ${TARGET_PROFILE}
 固件版本:		${OP_VERSION}
+固件标签:		${TARGET_FLAG}
 内核版本:		$(uname -r)
 运行内存:		Mem: $(MEMINFO Mem)M | Swap: $(MEMINFO Swap)M | Total: $(MEMINFO All)M
 其他参数:		${TARGET_BOARD} / ${TARGET_SUBTARGET}
@@ -132,7 +133,7 @@ function STRING() {
 	-f)
 		shift
 		[[ ! -r $1 ]] && return
-		cat "$1" 2> /dev/null | egrep -q "$2" 2> /dev/null && echo -n $2
+		egrep -q "$2" $1 2> /dev/null && echo -n $2
 	;;
 	*)
 		echo -n $1 | egrep -q $2 2> /dev/null && echo -n $2
@@ -298,7 +299,7 @@ function LOAD_VARIABLE() {
 		local if_ENV="$(GET_VARIABLE ${i} $1)"
 		if [[ ! ${if_ENV} ]]
 		then
-			ECHO r "未检测到环境变量: ${i}"
+			ECHO r "警告: 未检测到环境变量: ${i}"
 		fi
 		eval ${i}="${if_ENV}" 2> /dev/null
 	done
@@ -691,6 +692,7 @@ function UPGRADE() {
 ${Grey}### 系统 & 云端固件详情 ###${White}
 
 设备名称: ${TARGET_PROFILE}
+固件标签: ${TARGET_FLAG}
 内核版本: $(uname -sr)
 $([[ ${TARGET_BOARD} == x86 ]] && echo "固件格式: ${CLOUD_FW_Format} / ${x86_Boot_Method}" || echo "固件格式: ${CLOUD_FW_Format}")
 
@@ -1305,6 +1307,7 @@ ENV_DEPENDS=(
 	Author
 	Github
 	TARGET_PROFILE
+	TARGET_FLAG
 	OP_VERSION
 	OP_AUTHOR
 	OP_BRANCH
