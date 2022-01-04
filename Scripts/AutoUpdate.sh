@@ -3,7 +3,7 @@
 # AutoUpdate for Openwrt
 # Dependences: wget-ssl/wget/uclient-fetch curl jq expr sysupgrade
 
-Version=V6.8.4
+Version=V6.8.5
 
 function TITLE() {
 	clear && echo "Openwrt-AutoUpdate Script by Hyy2001 ${Version}"
@@ -351,7 +351,7 @@ function CHANGE_GITHUB() {
 	then
 		uci set autoupdate.@autoupdate[0].github="$1" 2> /dev/null
 		uci commit autoupdate
-		LOGGER "UCI 地址已修改为 [$1]"
+		LOGGER "UCI Github 地址已修改为 [$1]"
 	fi
 	if [[ ! ${Github} == $1 ]]
 	then
@@ -374,7 +374,7 @@ function CHANGE_BOOT() {
 	UEFI | BIOS)
 		EDIT_VARIABLE edit ${Custom_Variable} x86_Boot_Method $1
 		ECHO r "警告: 修改此设置后更新固件后可能导致设备无法启动!"
-		ECHO y "固件引导格式已指定为: [$1]"
+		ECHO y "固件引导格式已修改为: $1"
 		EXIT 0
 	;;
 	*)
@@ -388,16 +388,30 @@ function CHANGE_FLAG() {
 	case $1 in
 	reset)
 		EDIT_VARIABLE rm ${Custom_Variable} TARGET_FLAG
+		uci set autoupdate.@autoupdate[0].flag="$(GET_VARIABLE TARGET_FLAG ${Default_Variable})" 2> /dev/null
+		uci commit autoupdate
 		ECHO y "固件标签已恢复为默认!"
-		ECHO y "当前固件标签: [$(GET_VARIABLE TARGET_FLAG ${Default_Variable})]"
+		ECHO y "当前固件标签: $(GET_VARIABLE TARGET_FLAG ${Default_Variable})"
 		EXIT 0
 	;;
 	*)
 		if [[ ! $1 =~ (\"|=|-|_|\.|\#|\|) && $1 =~ [a-zA-Z0-9] ]]
 		then
-			EDIT_VARIABLE edit ${Custom_Variable} TARGET_FLAG $1
-			ECHO r "警告: 修改此设置后更新固件后可能导致无法检测到更新!"
-			ECHO y "固件标签已指定为: [$1]"
+			UCI_Flag="$(uci get autoupdate.@autoupdate[0].flag 2> /dev/null)"
+			if [[ ${UCI_Flag} && ! ${UCI_Flag} == $1 ]]
+			then
+				uci set autoupdate.@autoupdate[0].flag="$1" 2> /dev/null
+				uci commit autoupdate
+				LOGGER "UCI 固件标签已修改为: $1"
+			fi
+			if [[ ! ${TARGET_FLAG} == $1 ]]
+			then
+				EDIT_VARIABLE edit ${Custom_Variable} TARGET_FLAG $1
+				ECHO r "警告: 修改此设置后可能导致无法检测到更新!"
+				ECHO y "固件标签已修改为: $1"
+			else
+				ECHO g "固件标签未修改!"
+			fi
 			EXIT 0
 		else
 			ECHO r "错误的参数: [$1], 当前仅支持 [a-zA-Z0-9] 且不能包含 <\" = - _ # |> 等特殊字符!"
@@ -1194,7 +1208,7 @@ function AutoUpdate_Main() {
 		;;
 		--flag)
 			shift
-			[[ -z $* ]] && SHELL_HELP
+			[[ -z $* || $# != 1 ]] && SHELL_HELP
 			CHANGE_FLAG $1
 			EXIT
 		;;
@@ -1272,6 +1286,7 @@ function AutoUpdate_Main() {
 		;;
 		-C)
 			shift
+			[[ -z $* || $# != 1 ]] && SHELL_HELP
 			CHANGE_GITHUB $*
 			EXIT
 		;;
