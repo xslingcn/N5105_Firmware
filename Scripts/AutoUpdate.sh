@@ -3,7 +3,7 @@
 # AutoUpdate for Openwrt
 # Dependences: wget-ssl/wget/uclient-fetch curl jq expr sysupgrade
 
-Version=V6.8.3
+Version=V6.8.4
 
 function TITLE() {
 	clear && echo "Openwrt-AutoUpdate Script by Hyy2001 ${Version}"
@@ -341,16 +341,18 @@ function LOAD_VARIABLE() {
 }
 
 function CHANGE_GITHUB() {
-	if [[ ! $1 =~ https://github.com/ ]]
+	if [[ ! $1 =~ https://github.com/ || $# != 1 ]]
 	then
 		ECHO r "Github 地址格式错误,正确地址示例: https://github.com/Hyy2001X/AutoBuild-Actions"
 		EXIT 1
 	fi
-	UCI_Github="$(uci get autoupdate.@common[0].github 2> /dev/null)"
-	[[ ${UCI_Github} && ! ${UCI_Github} == $1 ]] && {
-		uci set autoupdate.@common[0].github="$1" 2> /dev/null
+	UCI_Github="$(uci get autoupdate.@autoupdate[0].github 2> /dev/null)"
+	if [[ ${UCI_Github} && ! ${UCI_Github} == $1 ]]
+	then
+		uci set autoupdate.@autoupdate[0].github="$1" 2> /dev/null
+		uci commit autoupdate
 		LOGGER "UCI 地址已修改为 [$1]"
-	}
+	fi
 	if [[ ! ${Github} == $1 ]]
 	then
 		EDIT_VARIABLE edit ${Custom_Variable} Github $1
