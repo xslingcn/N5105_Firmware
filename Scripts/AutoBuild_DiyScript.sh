@@ -56,6 +56,7 @@ Firmware_Diy() {
 		# AddPackage svn other ddnsto linkease/nas-packages/trunk/network/services
 		patch < ${CustomFiles}/Patches/revert_remove-alterId-config.patch -p1 -d ${Home}
 		patch < ${CustomFiles}/Patches/fix_ntfs3_antfs_conflict.patch -p1 -d ${Home}
+		patch < ${CustomFiles}/Patches/fix_aria2_autocreate_path.patch -p1 -d ${Home}
 
 		case "${TARGET_PROFILE}" in
 		d-team_newifi-d2)
