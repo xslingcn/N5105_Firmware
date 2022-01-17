@@ -51,6 +51,7 @@ Firmware_Diy() {
 		AddPackage svn other luci-app-eqos kenzok8/openwrt-packages/trunk
 		AddPackage git other OpenClash vernesong master
 		AddPackage git other luci-app-usb3disable rufengsuixing master
+		AddPackage git other luci-app-ikoolproxy iwrt main
 		# AddPackage git other OpenAppFilter destan19 master
 		# AddPackage svn other luci-app-ddnsto linkease/nas-packages/trunk/luci
 		# AddPackage svn other ddnsto linkease/nas-packages/trunk/network/services
@@ -60,7 +61,7 @@ Firmware_Diy() {
 
 		case "${TARGET_PROFILE}" in
 		d-team_newifi-d2)
-			patch -i ${CustomFiles}/${TARGET_PROFILE}_mac80211.patch package/kernel/mac80211/files/lib/wifi/mac80211.sh
+			patch < ${CustomFiles}/${TARGET_PROFILE}_mac80211.patch -p1 -d ${Home}
 			Copy ${CustomFiles}/${TARGET_PROFILE}_system ${BASE_FILES}/etc/config system
 			sed -i "/DEVICE_COMPAT_VERSION := 1.1/d" target/linux/ramips/image/mt7621.mk
 		;;
