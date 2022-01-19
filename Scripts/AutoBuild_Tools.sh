@@ -3,7 +3,7 @@
 # AutoBuild_Tools for Openwrt
 # Dependences: bash wget curl block-mount e2fsprogs smartmontools
 
-Version=V1.8.3
+Version=V1.8.4
 
 ECHO() {
 	case $1 in
@@ -28,7 +28,7 @@ ${Grey}AutoBuild 固件工具箱 ${Version}${White} [$$] [${Tools_File}]
 1. USB 空间扩展			6. 环境修复
 2. Samba 设置			7. 系统信息监控
 3. 端口占用列表			8. 在线设备列表
-4. 硬盘信息
+4. 硬盘信息			9. 创建虚拟内存 (swap)
 5. 网络检查
 
 ${Grey}u. 固件更新
@@ -88,7 +88,7 @@ ${White}q. 退出
 		Netstat2=${Tools_Cache}/Netstat2
 		ps_Info=${Tools_Cache}/ps_Info
 		rm -f ${Netstat2} && touch -a ${Netstat2}
-		netstat -ntupa | egrep ":::[0-9].+|0.0.0.0:[0-9]+|127.0.0.1:[0-9]+" | awk '{print $1" "$4" "$6" "$7}' | sed -r 's/0.0.0.0:/\1/;s/:::/\1/;s/127.0.0.1:/\1/;s/LISTEN/\1/' | sort | uniq > ${Netstat1}
+		netstat -ntupa | grep -v "::ffff" |egrep ":::[0-9].+|0.0.0.0:[0-9]+|127.0.0.1:[0-9]+" | awk '{print $1" "$4" "$6" "$7}' | sed -r 's/0.0.0.0:/\1/;s/:::/\1/;s/127.0.0.1:/\1/;s/LISTEN/\1/' | sort | uniq > ${Netstat1}
 		ps -w > ${ps_Info}
 		local i=1;while :;do
 			Proto=$(sed -n ${i}p ${Netstat1} | awk '{print $1}')
@@ -107,7 +107,7 @@ ${White}q. 退出
 		done
 		clear
 		ECHO x "端口占用列表\n"
-		printf "${Yellow}%-10s %-16s %-22s %-12s %-40s\n${White}" 协议 占用端口 服务名称 PID 进程信息
+		printf "${Grey}%-10s %-16s %-22s %-12s %-40s\n${White}" 协议 占用端口 服务名称 PID 进程信息
 		local X;while read X;do
 			printf "%-8s %-12s %-18s %-12s %-40s\n" ${X}
 		done < ${Netstat2}
@@ -163,18 +163,56 @@ ${White}q. 退出
 	;;
 	8)
 		clear
-		Online_List="${Tools_Cache}/Online_List"
-		i=1
 		ECHO x "在线设备列表\n"
-		ECHO y "序号   MAC 地址			IP 地址			设备名称"
-		grep "br-lan" /proc/net/arp | grep "0x2" | grep -v "0x0" | grep "$(echo $(GET_IP 4) | egrep -o "[0-9]+\.[0-9]+\.[0-9]+")" | awk '{print $4"\t"$1}' | while read X;do
-			echo " ${i}     ${X}		$(grep $(echo ${X} | awk '{print $2}') /tmp/dhcp.leases | awk '{print $4}')"
+		printf "${Grey}%-8s %-24s %-20s %-10s${White}\n" 序号 "MAC 地址" "IP 地址" 设备名称
+		i=1;grep "br-lan" /proc/net/arp | grep "0x2" | grep -v "0x0" | grep "$(echo $(GET_IP 4) | egrep -o "[0-9]+\.[0-9]+\.[0-9]+")" | awk '{print $4"\t"$1}' | while read X;do
+			printf " %-5s %-22s %-18s %-10s\n" ${i} ${X} $(if_Empty "$(grep $(echo ${X} | awk '{print $2}') /tmp/dhcp.leases | awk '{print $4}' | head -n 1)" 未知)
 			i=$(($i + 1))
 		done
+		unset i
 		ENTER
+	;;
+	9)
+		if [[ $(CHECK_PKG mkswap) == true ]];then
+			echo
+			read -p "请输入交换文件存放的位置:" swap_Path
+			read -p "请输入交换分区的大小:" swap_Size
+			if [[ -f ${swap_Path}/swapfile ]]
+			then
+				ECHO r "\n目录 '${swap_Path}' 下已存在交换文件 'swapfile', 且文件大小为 $(du ${swap_Path}/swapfile -h | cut -d '' -f1)
+继续操作将会覆盖该目录下原有的 swapfile 文件!\n"
+				read -p "是否继续操作?[Y/n]:" Choose
+				[[ ! ${Choose} == [Yesyes] ]] && continue
+				[[ ! -w ${swap_Path}/swapfile ]] && chmod 777 ${swap_Path}/swapfile
+				swapoff -a
+				rm -rf ${swap_Path}/swapfile
+			fi
+			ECHO y "\n开始创建 ${swap_Path}/swapfile ..."
+			dd if=/dev/zero of=${swap_Path}/swapfile bs=1M count=${swap_Size}
+			if [[ $? == 0 ]]
+			then
+				mkswap ${swap_Path}/swapfile && ECHO y "已成功创建交换文件 [${swap_Path}/swapfile], 可手动前往 '系统-挂载点' 进行设置!" || ECHO r "交换文件创建失败!"
+				chmod 0600 ${swap_Path}/swapfile
+			else
+				ECHO r "交换文件创建失败!"
+				rm -rf ${swap_Path}/swapfile
+			fi
+		else
+			ECHO r "\n当前设备不支持创建虚拟内存!"
+		fi
+		sleep 3
 	;;
 	esac
 done
+}
+
+if_Empty() {
+	if [[ -n $1 ]]
+	then
+		echo $1
+	else
+		echo $2
+	fi
 }
 
 AutoExpand_UI() {
@@ -677,7 +715,7 @@ GET_INFO() {
 
 CHECK_PKG() {
 	which $1 > /dev/null 2>&1
-	[[ $? == 0 ]] && echo "true" || echo "false"
+	[[ $? == 0 ]] && echo true || echo false
 }
 
 ENTER() {
