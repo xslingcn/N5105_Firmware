@@ -3,6 +3,9 @@
 # AutoBuild Functions
 
 Firmware_Diy_Before() {
+
+BASE_FILES=${GITHUB_WORKSPACE}/openwrt/package/base-files/files
+
 	ECHO "[Firmware_Diy_Before] Starting ..."
 	Home="${GITHUB_WORKSPACE}/openwrt"
 	CONFIG_TEMP="${GITHUB_WORKSPACE}/openwrt/.config"
@@ -104,7 +107,6 @@ CustomFiles=${GITHUB_WORKSPACE}/CustomFiles
 Scripts=${GITHUB_WORKSPACE}/Scripts
 FEEDS_LUCI=${GITHUB_WORKSPACE}/openwrt/package/feeds/luci
 FEEDS_PKG=${GITHUB_WORKSPACE}/openwrt/package/feeds/packages
-BASE_FILES=${GITHUB_WORKSPACE}/openwrt/package/base-files/files
 Banner_Message="${Banner_Message}"
 REGEX_Skip_Checkout="${REGEX_Skip_Checkout}"
 Version_File=${Version_File}
