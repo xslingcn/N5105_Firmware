@@ -31,7 +31,7 @@ Firmware_Diy() {
 	# ${TARGET_BOARD}		设备架构
 	# ${TARGET_FLAG}		固件名称后缀
 
-	# ${Home}			OpenWrt 源码位置
+	# ${Home}				OpenWrt 源码位置
 	# ${CONFIG_FILE}		使用的配置文件名称
 	# ${FEEDS_CONF}			OpenWrt 源码目录下的 feeds.conf.default 文件
 	# ${CustomFiles}		仓库中的 /CustomFiles 绝对路径
@@ -43,6 +43,7 @@ Firmware_Diy() {
 	case "${OP_AUTHOR}/${OP_REPO}:${OP_BRANCH}" in
 	coolsnowwolf/lede:master)
 		sed -i "s?/bin/login?/usr/libexec/login.sh?g" ${FEEDS_PKG}/ttyd/files/ttyd.config
+		rm -rf $(PKG_Finder d "package feeds" luci-theme-argon)
 		AddPackage git lean luci-theme-argon jerrykuku 18.06
 		AddPackage git lean luci-app-argon-config jerrykuku master
 		AddPackage git other AutoBuild-Packages Hyy2001X master
@@ -55,6 +56,8 @@ Firmware_Diy() {
 		# AddPackage git other OpenAppFilter destan19 master
 		# AddPackage svn other luci-app-ddnsto linkease/nas-packages/trunk/luci
 		# AddPackage svn other ddnsto linkease/nas-packages/trunk/network/services
+		AddPackage git other helloworld fw876 master
+		sed -i 's/143/143,8080,8443/' $(PKG_Finder d package luci-app-ssr-plus)/root/etc/init.d/shadowsocksr
 		# patch < ${CustomFiles}/Patches/revert_remove-alterId-config.patch -p1 -d ${Home}
 		patch < ${CustomFiles}/Patches/fix_ntfs3_antfs_conflict.patch -p1 -d ${Home}
 		patch < ${CustomFiles}/Patches/fix_aria2_autocreate_path.patch -p1 -d ${Home}
@@ -66,7 +69,7 @@ Firmware_Diy() {
 			sed -i "/DEVICE_COMPAT_VERSION := 1.1/d" target/linux/ramips/image/mt7621.mk
 		;;
 		x86_64)
-			AddPackage git other openwrt-passwall xiaorouji main
+			# AddPackage git other openwrt-passwall xiaorouji main
 			rm -rf packages/lean/autocore
 			AddPackage git lean autocore-modify Hyy2001X master
 		;;
