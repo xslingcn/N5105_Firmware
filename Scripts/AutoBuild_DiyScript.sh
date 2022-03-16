@@ -58,7 +58,7 @@ Firmware_Diy() {
 		# AddPackage svn other ddnsto linkease/nas-packages/trunk/network/services
 		AddPackage git other helloworld fw876 master
 		sed -i 's/143/143,8080,8443/' $(PKG_Finder d package luci-app-ssr-plus)/root/etc/init.d/shadowsocksr
-		# patch < ${CustomFiles}/Patches/revert_remove-alterId-config.patch -p1 -d ${Home}
+		patch < ${CustomFiles}/Patches/revert_remove-alterId-config.patch -p1 -d ${Home}
 		patch < ${CustomFiles}/Patches/fix_ntfs3_antfs_conflict.patch -p1 -d ${Home}
 		patch < ${CustomFiles}/Patches/fix_aria2_autocreate_path.patch -p1 -d ${Home}
 
