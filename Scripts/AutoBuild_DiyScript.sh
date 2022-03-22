@@ -51,7 +51,6 @@ Firmware_Diy() {
 		AddPackage svn other luci-app-socat Lienol/openwrt-package/trunk
 		AddPackage svn other luci-app-eqos kenzok8/openwrt-packages/trunk
 		AddPackage git other OpenClash vernesong master
-		AddPackage git other luci-app-usb3disable rufengsuixing master
 		AddPackage git other luci-app-ikoolproxy iwrt main
 		# AddPackage git other OpenAppFilter destan19 master
 		# AddPackage svn other luci-app-ddnsto linkease/nas-packages/trunk/luci
@@ -69,11 +68,15 @@ Firmware_Diy() {
 			sed -i "/DEVICE_COMPAT_VERSION := 1.1/d" target/linux/ramips/image/mt7621.mk
 		;;
 		x86_64)
-			# AddPackage git other openwrt-passwall xiaorouji main
+			AddPackage git other openwrt-passwall xiaorouji main
+			AddPackage git other luci-app-passwall2 xiaorouji main
 			rm -rf packages/lean/autocore
 			AddPackage git lean autocore-modify Hyy2001X master
 		;;
 		esac
+	;;
+	immortalwrt/immortalwrt*)
+		AddPackage git other AutoBuild-Packages Hyy2001X master
 	;;
 	esac
 }
