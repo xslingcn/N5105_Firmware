@@ -163,7 +163,7 @@ EOF
 		Copy ${Scripts}/AutoBuild_Tools.sh ${BASE_FILES}/bin
 		Copy ${Scripts}/AutoUpdate.sh ${BASE_FILES}/bin
 		AutoUpdate_Version=$(awk -F '=' '/Version/{print $2}' ${BASE_FILES}/bin/AutoUpdate.sh | awk 'NR==1')
-		AddPackage svn lean luci-app-autoupdate Hyy2001X/AutoBuild-Packages/trunk
+		AddPackage svn other luci-app-autoupdate Hyy2001X/AutoBuild-Packages/trunk
 		Copy ${CustomFiles}/Depends/profile ${BASE_FILES}/etc
 		Copy ${CustomFiles}/Depends/base-files-essential ${BASE_FILES}/lib/upgrade/keep.d
 		case "${OP_AUTHOR}/${OP_REPO}" in

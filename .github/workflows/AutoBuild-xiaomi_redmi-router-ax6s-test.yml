@@ -35,9 +35,9 @@ on:
 ### 环境变量设置
 env:
 # 编译时调用的 [.config] 文件名称
-  CONFIG_FILE: xiaomi_redmi-router-ax6s
+  CONFIG_FILE: xiaomi_redmi-router-ax6s-test
 # 源码仓库:分支
-  DEFAULT_SOURCE: immortalwrt/immortalwrt:openwrt-18.06-k5.4
+  DEFAULT_SOURCE: immortalwrt/immortalwrt:master
 # 上传固件到 Github Releases
   UPLOAD_RELEASES: true
 # 上传固件到 Github Artifacts
