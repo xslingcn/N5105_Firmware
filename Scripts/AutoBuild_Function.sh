@@ -499,11 +499,11 @@ Copy() {
 	MKDIR $2
 	if [[ -z $3 ]]
 	then
-		ECHO "Copying $1 to $2 ..."
+		ECHO "[C] Copying $1 to $2 ..."
 		cp -a $1 $2
 	else
-		ECHO "Copying and renaming $1 to $2/$3 ..."
+		ECHO "[R] Copying $1 to $2/$3 ..."
 		cp -a $1 $2/$3
 	fi
-	[[ $? == 0 ]] && ECHO "Done" || ECHO "Failed"
+	[[ $? == 0 ]] && ECHO "Done"
 }

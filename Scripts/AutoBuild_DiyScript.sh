@@ -66,6 +66,10 @@ Firmware_Diy() {
 			patch < ${CustomFiles}/${TARGET_PROFILE}_mac80211.patch -p1 -d ${Home}
 			Copy ${CustomFiles}/${TARGET_PROFILE}_system ${BASE_FILES}/etc/config system
 			sed -i "/DEVICE_COMPAT_VERSION := 1.1/d" target/linux/ramips/image/mt7621.mk
+			Copy ${CustomFiles}/fake-automount $(PKG_Finder d "package" automount)/files 15-automount
+		;;
+		xiaoyu_xy-c5)
+			Copy ${CustomFiles}/fake-automount $(PKG_Finder d "package" automount)/files 15-automount
 		;;
 		x86_64)
 			AddPackage git other openwrt-passwall xiaorouji main
