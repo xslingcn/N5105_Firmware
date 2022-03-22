@@ -76,6 +76,7 @@ Firmware_Diy() {
 		esac
 	;;
 	immortalwrt/immortalwrt*)
+		sed -i "s?/bin/login?/usr/libexec/login.sh?g" ${FEEDS_PKG}/ttyd/files/ttyd.config
 		AddPackage git other AutoBuild-Packages Hyy2001X master
 	;;
 	esac
