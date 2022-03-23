@@ -19,6 +19,7 @@ AutoBuild-Actions 稳定版仓库地址: [AutoBuild-Actions-Template](https://gi
 | [竞斗云 2.0](./.github/workflows/AutoBuild-p2w_r619ac-128m.yml) | [p2w_r619ac-128m](./Configs/p2w_r619ac-128m) | ❎ |
 | [红米 AC2100](./.github/workflows/AutoBuild-xiaomi_redmi-router-ac2100.yml) | [xiaomi_redmi-router-ac2100](./Configs/xiaomi_redmi-router-ac2100) | ✅ |
 | [小娱C1/3/5](./.github/workflows/AutoBuild-xiaoyu_xy-c5.yml) | [xiaoyu_xy-c5](./Configs/xiaoyu_xy-c5) | ❎ |
+| [红米 AX6S](./.github/workflows/AutoBuild-xiaomi_redmi-router-ax6s-test.yml) | [xiaomi_redmi-router-ax6s](./Configs/xiaomi_redmi-router-ax6s-test) | ✅ |
 
 ## 一、定制固件(可选)
 
@@ -46,23 +47,21 @@ AutoBuild-Actions 稳定版仓库地址: [AutoBuild-Actions-Template](https://gi
    
    Author_URL 自定义作者网站或域名, 将写入到内核信息, 例如 AUTO: [自动识别]; "https://www.baidu.com"
 
-   Banner_Message 终端中显示的额外信息
+   Default_Title Shell 终端首页显示的额外信息
 
    Default_IP 固件初始 IP 地址
 
-   Short_Firmware_Date 简短的固件日期, 例如 true: [20210601]; false: [202106012359]
+   Short_Fw_Date 简短的固件日期, 例如 true: [20210601]; false: [202106012359]
 
-   Checkout_Virtual_Images 额外上传已检测到的 x86 虚拟磁盘镜像
+   x86_Full_Images 额外上传已检测到的 x86 虚拟磁盘镜像
    
-   Firmware_Format 自定义固件格式, 例如 "bin img.gz tar.gz"; AUTO: [自动识别]
+   Fw_Format 自定义固件格式; false: [自动识别]
 
-   REGEX_Skip_Checkout 输出固件时丢弃包含该内容的文件 [正则表达式]
+   Regex_Skip 输出固件时丢弃包含该内容的文件
 
-   INCLUDE_AutoBuild_Features 自动添加 AutoBuild 固件特性, 例如 一键更新固件; 固件工具箱
+   AutoBuild_Features 自动添加 AutoBuild 固件特性, 例如 一键更新固件; 固件工具箱
 
-   INCLUDE_DRM_I915 自动启用 x86 设备的 Intel Graphics 显卡驱动
-
-   INCLUDE_Original_OpenWrt_Compatible 完善原生 OpenWrt 支持, 例如 true: [自动识别]; 19.07; 21.02
+   Compatible 完善原生 OpenWrt 支持, 例如 true: [自动识别]; 自选版本号: 19.07; 21.02
    
    注: 禁用某功能请将变量值修改为 false, 开启则为 true
 
@@ -72,7 +71,7 @@ AutoBuild-Actions 稳定版仓库地址: [AutoBuild-Actions-Template](https://gi
 
    **手动编译** 点击上方`Actions`, 在左栏选择要编译的设备,点击右方`Run workflow`再点击`绿色按钮`即可开始编译
 
-   **一键编译** 删除`第 29-30 行`的注释并保存, 触发点亮右上角的 **Star** 按钮即可一键编译
+   **一键编译** 删除`第 29-30 行`的注释并保存, 以后点击两次右上角的 **Star** 按钮即可一键编译
 
    **定时编译** 删除`第 26-27 行`的注释, 然后按需修改时间并提交修改 [Corn 使用方法](https://www.runoob.com/w3cnote/linux-crontab-tasks.html)
 
