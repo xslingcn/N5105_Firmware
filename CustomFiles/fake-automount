@@ -1,69 +1,80 @@
 #!/bin/sh
 
 LOGGER() {
-	echo $*
+	echo "[$(date +%D-%H:%M:%S)] [$$] $*" >> /tmp/automount.log
 	logger -t "automount[$$]" "$*"
 }
 
-[ -f /tmp/automount.pid ] && exit
+if [ "$(uci get fstab.@global[0].auto_mount)" != 1 ]
+then
+	block mount
+	exit
+fi
+
 echo "$$" > /tmp/automount.pid
+touch -f /tmp/automount.log
 
 case "$HOTPLUG_TYPE,$DEVTYPE" in
 block,partition)
-	mkdir -p /var/log/automount
-	if [ "$ACTION" = remove ]
+	LOGGER "Attached mode: $ACTION"
+	sleep 3
+	if [ "$ACTION" = remove -o "$ACTION" = add ]
 	then
-		for disk in $(mount | awk '{print $1}' | grep /dev | egrep -v "mmcblk|mtdblock|loop");do
+		for disk in $(mount | awk '{print $1}' | grep /dev | egrep -v "rom|mtdblock|loop|overlay");do
 			part=$(mount | grep $disk | awk '{print $3}')
 			[ ! "$part" ] && continue
 			skip_umount=$(lsblk --list $disk > /dev/null 2>&1; echo $?)
-			if [ "$skip_umount" = 0 -a "$force_umount" != 1 ]
+			if [ "$skip_umount" != 0 ]
 			then
-				LOGGER "Skip umounting [$part] ..."
-				continue
+				umount $part 2> /dev/null || umount -l $part 2> /dev/null
+				LOGGER "Successfully umounted invisible part [$part]"
+				[ ! "$(ls -A $part)" ] && rm -rf $part
 			fi
-			umount $part 2> /dev/null || umount -l $part 2> /dev/null
-			sleep 1
-			LOGGER "Successfully umounted invisible part [$part]"
-			[ ! "$(ls -A $part)" ] && rm -rf $part
 		done
-		LOGGER "umount: Finished"
 	fi
 	if [ "$ACTION" = add ]
 	then
-		for part in $(lsblk --list | egrep -v "mmcblk|mtdblock" | grep part | awk '{print $1}');do
+		block mount
+		for part in $(lsblk --list | egrep -v "mtdblock|loop|overlay" | grep part | awk '{print $1}');do
 			skip_mount=$(mount | awk '{print $1}' | grep -q $part ; echo $?)
-			fstype=$(block info /dev/$part | egrep -o 'TYPE="[0-9a-zA-Z].+' | awk -F '["]' '/TYPE/{print $2}')
-			if [ -z "$fstype" ]
-			then
-				LOGGER "Unknown filesystem type of [/dev/$part]"
-				continue
-			fi
+			fstype=$(block info /dev/$part 2> /dev/null | egrep -o 'TYPE="[0-9a-zA-Z].+' | awk -F '["]' '/TYPE/{print $2}')
 			if [ "$skip_mount" = 0 ]
 			then
 				LOGGER "Already mounted [/dev/$part] on this device"
 				continue
 			fi
-			mkdir -p /mnt/$part
-			chmod 777 /mnt/$part
+			if [ -z "$fstype" ]
+			then
+				LOGGER "Unknown filesystem of [/dev/$part]"
+				continue
+			fi
 			case "$fstype" in
 			ntfs)
-				extra_cmd="-o nls=utf8"
+				extra="-o nls=utf8"
 			;;
 			vfat)
-				extra_cmd="-o iocharset=utf8"
+				extra="-o iocharset=utf8"
 			;;
 			esac
 			LOGGER "Try to mount disk [/dev/$part]($fstype) on [/mnt/$part] ..."
-			mount -t $fstype /dev/$part /mnt/$part -o rw,defaults $extra_cmd && LOGGER "Successfully mounted disk [/dev/$part] on [/mnt/$part]" || {
+			mkdir -p /mnt/$part
+			chmod 777 /mnt/$part
+			mount -t $fstype /dev/$part /mnt/$part -o rw,defaults,discard $extra 
+			if [ "$?" != 0 ]
+			then
+				mount /dev/$part /mnt/$part -o rw,defaults && failed=0 || failed=1
+			else
+				failed=0
+			fi
+			[ "$failed" = 0 ] && LOGGER "Successfully mounted disk [/dev/$part] on [/mnt/$part]" || {
 				LOGGER "Failed to mount disk [/dev/$part] on [/mnt/$part]"
 			}
-			sleep 1
+			sleep 1 & unset failed
 		done
-		LOGGER "mount: Finished"
 	fi
 ;;
 esac
 
 rm -f /tmp/automount.pid
+LOGGER "automount: Finished"
 exit 0
