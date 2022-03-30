@@ -76,6 +76,7 @@ Firmware_Diy() {
 			AddPackage git passwall-luci openwrt-passwall xiaorouji luci
 			rm -rf packages/lean/autocore
 			AddPackage git lean autocore-modify Hyy2001X master
+			cat ${CustomFiles}/x86_64_kconfig >> ${WORK}/target/linux/x86/config-5.15
 		;;
 		esac
 	;;
