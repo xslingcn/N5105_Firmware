@@ -53,6 +53,11 @@ env:
 jobs:
   Compile:
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+      contents: write
+
     steps:
     - name: Maximize Build Space
       uses: easimon/maximize-build-space@master
