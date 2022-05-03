@@ -48,7 +48,9 @@ Firmware_Diy() {
 		AddPackage git lean luci-app-argon-config jerrykuku master
 		AddPackage git other AutoBuild-Packages Hyy2001X master
 		AddPackage svn other luci-app-smartdns immortalwrt/luci/branches/openwrt-18.06/applications
+		sed -i 's/..\/..\//\$\(TOPDIR\)\/feeds\/luci\//g' $(PKG_Finder d package luci-app-smartdns)/Makefile
 		AddPackage svn other luci-app-eqos immortalwrt/luci/branches/openwrt-18.06/applications
+		sed -i 's/..\/..\//\$\(TOPDIR\)\/feeds\/luci\//g' $(PKG_Finder d package luci-app-eqos)/Makefile
 		AddPackage git other OpenClash vernesong master
 		AddPackage git other luci-app-ikoolproxy iwrt main
 		AddPackage git other helloworld fw876 master
