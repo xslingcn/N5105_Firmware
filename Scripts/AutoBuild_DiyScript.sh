@@ -51,6 +51,8 @@ Firmware_Diy() {
 		sed -i 's/..\/..\//\$\(TOPDIR\)\/feeds\/luci\//g' $(PKG_Finder d package luci-app-smartdns)/Makefile
 		AddPackage svn other luci-app-eqos immortalwrt/luci/branches/openwrt-18.06/applications
 		sed -i 's/..\/..\//\$\(TOPDIR\)\/feeds\/luci\//g' $(PKG_Finder d package luci-app-eqos)/Makefile
+		AddPackage svn other luci-app-socat immortalwrt/luci/branches/openwrt-18.06/applications
+		sed -i 's/..\/..\//\$\(TOPDIR\)\/feeds\/luci\//g' $(PKG_Finder d package luci-app-socat)/Makefile
 		AddPackage git other OpenClash vernesong master
 		AddPackage git other luci-app-ikoolproxy iwrt main
 		AddPackage git other helloworld fw876 master
