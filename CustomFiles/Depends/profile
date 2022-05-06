@@ -1,7 +1,7 @@
 Sysinfo() {
 	local TARGET_PROFILE TARGET_BOOTABLE TEMP CoreMark
-	TARGET_PROFILE=$(getinf TARGET_PROFILE /rom/etc/AutoBuild/Default_Variable)
-	TARGET_BOARD=$(getinf TARGET_BOARD /rom/etc/AutoBuild/Default_Variable)
+	TARGET_PROFILE=$(getinf TARGET_PROFILE /rom/etc/autoupdate/default)
+	TARGET_BOARD=$(getinf TARGET_BOARD /rom/etc/autoupdate/default)
 	[ -z "${TARGET_PROFILE}" ] && echo
 	if [ "${TARGET_BOARD}" == x86 ]
 	then
