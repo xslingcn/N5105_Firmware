@@ -61,8 +61,6 @@ AutoBuild-Actions 稳定版仓库地址: [AutoBuild-Actions-Template](https://gi
 
    AutoBuild_Features 自动添加 AutoBuild 固件特性, 例如 一键更新固件; 固件工具箱
 
-   Compatible 完善原生 OpenWrt 支持, 例如 true: [自动识别]; 自选版本号: 19.07; 21.02
-   
    注: 禁用某功能请将变量值修改为 false, 开启则为 true
 
 ```
