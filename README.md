@@ -9,17 +9,19 @@ AutoBuild-Actions 稳定版仓库地址: [AutoBuild-Actions-Template](https://gi
 
 支持的 OpenWrt 源码: `coolsnowwolf/lede`、`immortalwrt/immortalwrt`、`openwrt/openwrt`、`lienol/openwrt`
 
+🔔 **Not a DaLao , just an User.**
+
 ## 维护设备列表
 
-| 机型 | 配置文件 | 拥有设备 |
-| :----: | :----: | :----: |
-| [x86_64](./.github/workflows/AutoBuild-x86_64.yml) | [x86_64](./Configs/x86_64) | ✅ |
-| [新路由3](./.github/workflows/AutoBuild-d-team_newifi-d2.yml) | [d-team_newifi-d2](./Configs/d-team_newifi-d2 "点击") | ✅ |
-| [华硕 acrh17](./.github/workflows/AutoBuild-asus_rt-acrh17.yml) | [asus_rt-acrh17](./Configs/asus_rt-acrh17) | ❎ |
-| [竞斗云 2.0](./.github/workflows/AutoBuild-p2w_r619ac-128m.yml) | [p2w_r619ac-128m](./Configs/p2w_r619ac-128m) | ❎ |
-| [红米 AC2100](./.github/workflows/AutoBuild-xiaomi_redmi-router-ac2100.yml) | [xiaomi_redmi-router-ac2100](./Configs/xiaomi_redmi-router-ac2100) | ✅ |
-| [小娱C1/3/5](./.github/workflows/AutoBuild-xiaoyu_xy-c5.yml) | [xiaoyu_xy-c5](./Configs/xiaoyu_xy-c5) | ❎ |
-| [红米 AX6S](./.github/workflows/AutoBuild-xiaomi_redmi-router-ax6s.yml) | [xiaomi_redmi-router-ax6s](./Configs/xiaomi_redmi-router-ax6s) | ✅ |
+| 机型 | 配置文件 | 自用 | 是否发布 |
+| :----: | :----: | :----: | :----: |
+| [x86_64](./.github/workflows/AutoBuild-x86_64.yml) | [x86_64](./Configs/x86_64) | ✅ | ❎ |
+| [新路由3](./.github/workflows/AutoBuild-d-team_newifi-d2.yml) | [d-team_newifi-d2](./Configs/d-team_newifi-d2) | ✅ | ✅ |
+| [华硕 acrh17](./.github/workflows/AutoBuild-asus_rt-acrh17.yml) | [asus_rt-acrh17](./Configs/asus_rt-acrh17) | ❎ | ❎ |
+| [竞斗云 2.0](./.github/workflows/AutoBuild-p2w_r619ac-128m.yml) | [p2w_r619ac-128m](./Configs/p2w_r619ac-128m) | ❎ | ❎ |
+| [红米 AC2100](./.github/workflows/AutoBuild-xiaomi_redmi-router-ac2100.yml) | [xiaomi_redmi-router-ac2100](./Configs/xiaomi_redmi-router-ac2100) | ❎ | ❎ |
+| [小娱C1/3/5](./.github/workflows/AutoBuild-xiaoyu_xy-c5.yml) | [xiaoyu_xy-c5](./Configs/xiaoyu_xy-c5) | ❎ | ✅ |
+| [红米 AX6S](./.github/workflows/AutoBuild-xiaomi_redmi-router-ax6s.yml) | [xiaomi_redmi-router-ax6s](./Configs/xiaomi_redmi-router-ax6s) | ✅ | ❎ |
 
 ## 一、定制固件(可选)
 
@@ -77,7 +79,7 @@ AutoBuild-Actions 稳定版仓库地址: [AutoBuild-Actions-Template](https://gi
    
    **使用其他 [.config] 配置文件** 点击`Run workflow`后即可输入位于`/Configs`下的配置文件名称
 
-   🔔 **为了你的账号安全, 请不要使用 SSH 连接 Github Action**, `.config`配置等操作请务必在本地完成
+   🔔 **为了你的账号安全, 请不要使用 SSH 连接 Github Action**, `.config`配置以及固件定制等操作请务必在本地完成 🔔
 
 ## 三、部署云端日志(可选)
 
@@ -93,27 +95,29 @@ AutoBuild-Actions 稳定版仓库地址: [AutoBuild-Actions-Template](https://gi
 
    首先需要打开`TTYD 终端`或者使用`SSH`, 按需输入下方指令:
 
-   常规更新固件: `autoupdate`或完整指令`bash /bin/AutoUpdate.sh`
+   常规更新固件: `autoupdate`
 
    使用镜像加速更新固件: `autoupdate -P`
 
    更新固件(不保留配置): `autoupdate -n`
    
-   强制刷入固件: `autoupdate -F`
+   强制刷写固件(危险): `autoupdate -F`
    
-   "我不管, 我就是要更新!": `autoupdate -f`
+   强制下载并刷写固件: `autoupdate -f`
 
    更新脚本: `autoupdate -x`
 
    列出相关信息: `autoupdate --list`
 
-   查看所有可用参数: `autoupdate --help`
+   检查运行环境: `autoupdate --chk`
 
-   **注意: **部分参数可一起使用, 例如 `autoupdate -n -P -F --path /mnt/sda1`
+   查看脚本帮助: `autoupdate --help`
+
+   **注意:** 部分参数可一起使用, 例如 `autoupdate -n -P -F --path /mnt/sda1`
 
 ## 使用 tools 固件工具箱
 
-   打开`TTYD 终端`或者使用`SSH`, 执行指令`tools`或`bash /bin/AutoBuild_Tools.sh`即可启动固件工具箱
+   打开`TTYD 终端`或者使用`SSH`, 执行指令`tools`即可启动固件工具箱
 
    当前支持以下功能:
 
