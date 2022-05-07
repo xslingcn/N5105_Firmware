@@ -3,7 +3,7 @@
 # AutoBuild_Tools for Openwrt
 # Dependences: bash wget curl block-mount e2fsprogs smartmontools
 
-Version=V1.8.7
+Version=V1.8.8
 
 ECHO() {
 	case $1 in
@@ -130,6 +130,7 @@ ${White}q. 退出
 		cp -a /rom/etc/openwrt_release /etc
 		cp -a /rom/etc/autoupdate/default /etc/autoupdate
 		cp -a /rom/bin/autoupdate ${AutoUpdate_File}
+		chmod +x ${AutoUpdate_File}
 		cp -a /rom/bin/tools ${Tools_File}
 		cp -a /rom/etc/config/autoupdate /etc/config
 		ECHO y "\n固件环境修复完成!"

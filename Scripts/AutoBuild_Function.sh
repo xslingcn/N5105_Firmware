@@ -128,7 +128,7 @@ Firmware_Diy_Main() {
 	if [[ ${AutoBuild_Features} == true ]]
 	then
 		AddPackage git other AutoBuild-Packages Hyy2001X master
-		for i in ${GITHUB_ENV} $(PKG_Finder d package luci-app-autoupdate)/root/etc/autoupdate/default
+		for i in ${GITHUB_ENV} $(PKG_Finder d package AutoBuild-Packages)/autoupdate/files/etc/autoupdate/default
 		do
 			cat >> ${i} <<EOF
 Author=${Author}
@@ -144,7 +144,7 @@ OP_BRANCH=${OP_BRANCH}
 
 EOF
 		done ; unset i
-		AutoUpdate_Version=$(awk -F '=' '/Version/{print $2}' $(PKG_Finder d package luci-app-autoupdate)/root/bin/autoupdate | awk 'NR==1')
+		AutoUpdate_Version=$(awk -F '=' '/Version/{print $2}' $(PKG_Finder d package AutoBuild-Packages)/autoupdate/files/bin/autoupdate | awk 'NR==1')
 		Copy ${CustomFiles}/Depends/tools ${BASE_FILES}/bin
 		Copy ${CustomFiles}/Depends/profile ${BASE_FILES}/etc
 		Copy ${CustomFiles}/Depends/base-files-essential ${BASE_FILES}/lib/upgrade/keep.d
