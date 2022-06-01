@@ -47,11 +47,13 @@ AutoBuild-Actions 稳定版仓库地址: [AutoBuild-Actions-Template](https://gi
 ```
    Author 作者名称, AUTO: [自动识别]
    
-   Author_URL 自定义作者网站或域名, 将写入到内核信息, 例如 AUTO: [自动识别]; "https://www.baidu.com"
+   Author_URL 自定义作者网站或域名, AUTO: [自动识别]
+
+   Default_Flag 固件标签 (名称后缀), 适用不同配置文件, AUTO: [自动识别]
 
    Default_Title Shell 终端首页显示的额外信息
 
-   Default_IP 固件初始 IP 地址
+   Default_IP 固件 IP 地址
 
    Short_Fw_Date 简短的固件日期, 例如 true: [20210601]; false: [202106012359]
 
@@ -106,6 +108,8 @@ AutoBuild-Actions 稳定版仓库地址: [AutoBuild-Actions-Template](https://gi
    强制下载并刷写固件: `autoupdate -f`
 
    更新脚本: `autoupdate -x`
+   
+   打印运行日志:  `autoupdate --log`
 
    列出相关信息: `autoupdate --list`
 
