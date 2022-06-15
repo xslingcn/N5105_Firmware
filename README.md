@@ -16,7 +16,7 @@ AutoBuild-Actions 稳定版仓库地址: [AutoBuild-Actions-Template](https://gi
 | 机型 | 配置文件 | 自用 | 是否发布 |
 | :----: | :----: | :----: | :----: |
 | [x86_64](./.github/workflows/AutoBuild-x86_64.yml) | [x86_64](./Configs/x86_64) | ✅ | ❎ |
-| [新路由3](./.github/workflows/AutoBuild-d-team_newifi-d2.yml) | [d-team_newifi-d2](./Configs/d-team_newifi-d2) | ✅ | ✅ |
+| [新路由3](./.github/workflows/AutoBuild-d-team_newifi-d2.yml) | [d-team_newifi-d2](./Configs/d-team_newifi-d2) | ❎ | ✅ |
 | [华硕 acrh17](./.github/workflows/AutoBuild-asus_rt-acrh17.yml) | [asus_rt-acrh17](./Configs/asus_rt-acrh17) | ❎ | ❎ |
 | [竞斗云 2.0](./.github/workflows/AutoBuild-p2w_r619ac-128m.yml) | [p2w_r619ac-128m](./Configs/p2w_r619ac-128m) | ❎ | ❎ |
 | [红米 AC2100](./.github/workflows/AutoBuild-xiaomi_redmi-router-ac2100.yml) | [xiaomi_redmi-router-ac2100](./Configs/xiaomi_redmi-router-ac2100) | ❎ | ❎ |
