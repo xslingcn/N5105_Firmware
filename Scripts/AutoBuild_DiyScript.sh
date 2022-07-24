@@ -41,7 +41,6 @@ Firmware_Diy() {
 
 	case "${OP_AUTHOR}/${OP_REPO}:${OP_BRANCH}" in
 	coolsnowwolf/lede:master)
-		rm -r $(PKG_Finder d "package feeds" luci-theme-argon)
 		sed -i "s?/bin/login?/usr/libexec/login.sh?g" ${FEEDS_PKG}/ttyd/files/ttyd.config
 		
 		# AddPackage git lean luci-theme-argon jerrykuku 18.06
