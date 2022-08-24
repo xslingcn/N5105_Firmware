@@ -80,7 +80,7 @@ EOF
 		AddPackage git other OpenClash vernesong master
 		AddPackage git other luci-app-ikoolproxy iwrt main
 		AddPackage git other helloworld fw876 master
-		sed -i 's/143/143,8080,8443,6969,1337/' $(PKG_Finder d package luci-app-ssr-plus)/root/etc/init.d/shadowsocksr
+		# sed -i 's/143/143,8080,8443,6969,1337/' $(PKG_Finder d package luci-app-ssr-plus)/root/etc/init.d/shadowsocksr
 		
 		for x in $(ls -1 ${CustomFiles}/Patches/luci-app-shadowsocksr)
 		do
