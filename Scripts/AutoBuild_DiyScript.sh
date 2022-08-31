@@ -13,7 +13,7 @@ Firmware_Diy_Core() {
 	Short_Fw_Date=true
 	x86_Full_Images=false
 	Fw_Format=false
-	Regex_Skip="packages|buildinfo|sha256sums|manifest|kernel|rootfs|factory|itb|profile"
+	Regex_Skip="packages|buildinfo|sha256sums|manifest|kernel|rootfs|factory|itb|profile|ext4"
 
 	AutoBuild_Features=true
 }
@@ -69,14 +69,15 @@ EOF
 		sed -i "s?/bin/login?/usr/libexec/login.sh?g" ${FEEDS_PKG}/ttyd/files/ttyd.config
 		sed -i 's/luci-theme-bootstrap/luci-theme-argon-mod/g' feeds/luci/collections/luci/Makefile
 		sed -i '/uci commit luci/i\uci set luci.main.mediaurlbase="/luci-static/argon-mod"' $(PKG_Finder d package default-settings)/files/zzz-default-settings
-		# AddPackage git lean luci-theme-argon jerrykuku 18.06
+		
+		for i in smartdns eqos mentohust minieap unblockneteasemusic
+		do
+			AddPackage svn apps luci-app-${i} immortalwrt/luci/branches/openwrt-18.06/applications
+			sed -i 's/..\/..\//\$\(TOPDIR\)\/feeds\/luci\//g' ${WORK}/package/apps/luci-app-${i}/Makefile
+		done ; unset i
+
+		AddPackage svn apps minieap immortalwrt/packages/branches/openwrt-18.06/net
 		AddPackage git lean luci-app-argon-config jerrykuku master
-		AddPackage svn other luci-app-smartdns immortalwrt/luci/branches/openwrt-18.06/applications
-		sed -i 's/..\/..\//\$\(TOPDIR\)\/feeds\/luci\//g' $(PKG_Finder d package luci-app-smartdns)/Makefile
-		AddPackage svn other luci-app-eqos immortalwrt/luci/branches/openwrt-18.06/applications
-		sed -i 's/..\/..\//\$\(TOPDIR\)\/feeds\/luci\//g' $(PKG_Finder d package luci-app-eqos)/Makefile
-		# AddPackage svn other luci-app-socat immortalwrt/luci/branches/openwrt-18.06/applications
-		# sed -i 's/..\/..\//\$\(TOPDIR\)\/feeds\/luci\//g' $(PKG_Finder d package luci-app-socat)/Makefile
 		AddPackage git other OpenClash vernesong master
 		AddPackage git other luci-app-ikoolproxy iwrt main
 		AddPackage git other helloworld fw876 master
@@ -85,7 +86,7 @@ EOF
 		for x in $(ls -1 ${CustomFiles}/Patches/luci-app-shadowsocksr)
 		do
 			patch < ${CustomFiles}/Patches/luci-app-shadowsocksr/${x} -p1 -d ${WORK}
-		done
+		done ; unset x
 		
 		patch < ${CustomFiles}/Patches/fix_ntfs3_conflict_with_antfs.patch -p1 -d ${WORK}
 		patch < ${CustomFiles}/Patches/fix_aria2_auto_create_download_path.patch -p1 -d ${WORK}
@@ -103,12 +104,13 @@ EOF
 			patch < ${CustomFiles}/d-team_newifi-d2_mt76_dualband.patch -p1 -d ${WORK}
 		;;
 		x86_64)
+			Copy ${CustomFiles}/Depends/cpuset ${BASE_FILES}/bin
 			AddPackage git passwall-depends openwrt-passwall xiaorouji packages
 			AddPackage git passwall-luci openwrt-passwall xiaorouji luci
 			rm -rf packages/lean/autocore
 			AddPackage git lean autocore-modify Hyy2001X master
 			sed -i -- 's:/bin/ash:'/bin/bash':g' ${BASE_FILES}/etc/passwd
-			patch < ${CustomFiles}/Patches/upgrade_intel_igpu_drv.patch -p1 -d ${WORK}
+			# patch < ${CustomFiles}/Patches/upgrade_intel_igpu_drv.patch -p1 -d ${WORK}
 		;;
 		esac
 	;;
