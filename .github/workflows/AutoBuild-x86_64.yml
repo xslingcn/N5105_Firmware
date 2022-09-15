@@ -20,6 +20,9 @@ on:
       Tempoary_FLAG:
         description: '固件标签 [可选]'
         default: ''
+      Temporary_COMMIT:
+        description: '源仓库Commit [可选]'
+        default: ''
 ### 控制部分结束 ( 以上内容请保持不变 )
 
   #push:
@@ -135,6 +138,11 @@ jobs:
     - name: Clone Openwrt Source Code
       run: |
         git clone -b $REPO_BRANCH $REPO_URL openwrt
+        if [ -n "${{ github.event.inputs.Temporary_COMMIT }}" ]
+        then
+            echo "Checkout at [${{ github.event.inputs.Temporary_COMMIT }}]"
+            (cd openwrt && git checkout ${{ github.event.inputs.Temporary_COMMIT }} )
+        fi
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
         cd openwrt
         ./scripts/feeds update -a
