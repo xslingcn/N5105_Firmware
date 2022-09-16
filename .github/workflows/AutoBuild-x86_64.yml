@@ -11,17 +11,20 @@ on:
   repository_dispatch:
   workflow_dispatch:
     inputs:
-      Tempoary_IP:
+      Temporary_IP:
         description: '固件 IP 地址 [可选]'
         default: ''
-      Tempoary_CONFIG:
+      Temporary_CONFIG:
         description: '配置文件 [可选]'
         default: ''
-      Tempoary_FLAG:
+      Temporary_FLAG:
         description: '固件标签 [可选]'
         default: ''
       Temporary_COMMIT:
         description: '源仓库Commit [可选]'
+        default: ''
+      Temporary_VERBOSE:
+        description: '开启Verbose日志(true/false) [可选]'
         default: ''
 ### 控制部分结束 ( 以上内容请保持不变 )
 
@@ -82,11 +85,11 @@ jobs:
       run: |
         echo "Free space:"
         df -h
-        if [ -n "${{ github.event.inputs.Tempoary_CONFIG }}" ]
+        if [ -n "${{ github.event.inputs.Temporary_CONFIG }}" ]
         then
-            if [ -f "$GITHUB_WORKSPACE/Configs/${{ github.event.inputs.Tempoary_CONFIG }}" ]
+            if [ -f "$GITHUB_WORKSPACE/Configs/${{ github.event.inputs.Temporary_CONFIG }}" ]
             then
-                CONFIG_FILE=${{ github.event.inputs.Tempoary_CONFIG }}
+                CONFIG_FILE=${{ github.event.inputs.Temporary_CONFIG }}
             else
                 CONFIG_FILE=${{ env.CONFIG_FILE }}
             fi
@@ -101,15 +104,27 @@ jobs:
             echo "CONFIG_FILE: [/Config/$CONFIG_FILE]"
             echo "CONFIG_FILE=$CONFIG_FILE" >> $GITHUB_ENV
         fi
-        if [ -n "${{ github.event.inputs.Tempoary_IP }}" ]
+        if [ -n "${{ github.event.inputs.Temporary_IP }}" ]
         then
-            echo "IP: [${{ github.event.inputs.Tempoary_IP }}]"
-            echo "Tempoary_IP=${{ github.event.inputs.Tempoary_IP }}" >> $GITHUB_ENV
+            echo "IP: [${{ github.event.inputs.Temporary_IP }}]"
+            echo "Temporary_IP=${{ github.event.inputs.Temporary_IP }}" >> $GITHUB_ENV
         fi
-        if [ -n "${{ github.event.inputs.Tempoary_FLAG }}" ]
+        if [ -n "${{ github.event.inputs.Temporary_FLAG }}" ]
         then
-            echo "FLAG: [${{ github.event.inputs.Tempoary_FLAG }}]"
-            echo "Tempoary_FLAG=${{ github.event.inputs.Tempoary_FLAG }}" >> $GITHUB_ENV
+            echo "FLAG: [${{ github.event.inputs.Temporary_FLAG }}]"
+            echo "Temporary_FLAG=${{ github.event.inputs.Temporary_FLAG }}" >> $GITHUB_ENV
+        fi
+        if [ -n "${{ github.event.inputs.Temporary_COMMIT }}" ]
+        then
+            echo "Checkout at [${{ github.event.inputs.Temporary_COMMIT }}]"
+            echo "Temporary_COMMIT=${{ github.event.inputs.Temporary_COMMIT }}" >> $GITHUB_ENV
+        fi
+        if [ -n "${{ github.event.inputs.Temporary_VERBOSE }}" ]
+        then
+            echo "Verbose: ${{ github.event.inputs.Temporary_VERBOSE }}"
+            echo "Temporary_VERBOSE=${{ github.event.inputs.Temporary_VERBOSE }}" >> $GITHUB_ENV
+        else 
+            echo "Temporary_VERBOSE=false" >> $GITHUB_ENV
         fi
         REPO_URL="https://github.com/$(cut -d \: -f 1 <<< ${{ env.DEFAULT_SOURCE }})"
         REPO_BRANCH=$(cut -d \: -f 2 <<< ${{ env.DEFAULT_SOURCE }})
@@ -138,10 +153,9 @@ jobs:
     - name: Clone Openwrt Source Code
       run: |
         git clone -b $REPO_BRANCH $REPO_URL openwrt
-        if [ -n "${{ github.event.inputs.Temporary_COMMIT }}" ]
+        if [ -n "${{ env.Temporary_COMMIT }}" ]
         then
-            echo "Checkout at [${{ github.event.inputs.Temporary_COMMIT }}]"
-            (cd openwrt && git checkout ${{ github.event.inputs.Temporary_COMMIT }} )
+            (cd openwrt && git checkout ${{ env.Temporary_COMMIT }})
         fi
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
         cd openwrt
@@ -186,7 +200,14 @@ jobs:
     - name: Build OpenWrt
       run: |
         cd openwrt
-        make -j4 || make -j1 V=s
+        if [ "${{ env.Temporary_VERBOSE }}" == true ]
+        then
+            echo "Make Command: make -j1 V=s"
+            make -j1 V=s
+        else 
+            echo "Make Command: make -j4"
+            make -j4
+        fi
         [ "$?" == 0 ] && echo "Compile_Result=true" >> $GITHUB_ENV || echo "Compile_Result=false" >> $GITHUB_ENV
 
     - name: Checkout Firmware
