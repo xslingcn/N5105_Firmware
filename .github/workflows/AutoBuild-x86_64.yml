@@ -13,10 +13,10 @@ on:
     inputs:
       Temporary_IP:
         description: '固件 IP 地址 [可选]'
-        default: ''
+        default: '10.10.0.1'
       Temporary_CONFIG:
         description: '配置文件 [可选]'
-        default: ''
+        default: 'x86_64'
       Temporary_FLAG:
         description: '固件标签 [可选]'
         default: ''
@@ -25,7 +25,7 @@ on:
         default: ''
       Temporary_VERBOSE:
         description: '开启Verbose日志(true/false) [可选]'
-        default: ''
+        default: 'true'
 ### 控制部分结束 ( 以上内容请保持不变 )
 
   #push:
@@ -47,7 +47,7 @@ env:
 # 上传固件到 Github Releases
   UPLOAD_RELEASES: true
 # 上传固件到 Github Artifacts
-  UPLOAD_ARTIFACTS: true
+  UPLOAD_ARTIFACTS: false
 # 上传 bin 文件夹到 Github Artifacts
   UPLOAD_BIN_ARTIFACTS: false
 # 删除无用文件以增加编译空间
@@ -124,7 +124,7 @@ jobs:
             echo "Verbose: ${{ github.event.inputs.Temporary_VERBOSE }}"
             echo "Temporary_VERBOSE=${{ github.event.inputs.Temporary_VERBOSE }}" >> $GITHUB_ENV
         else 
-            echo "Temporary_VERBOSE=false" >> $GITHUB_ENV
+            echo "Temporary_VERBOSE=true" >> $GITHUB_ENV
         fi
         REPO_URL="https://github.com/$(cut -d \: -f 1 <<< ${{ env.DEFAULT_SOURCE }})"
         REPO_BRANCH=$(cut -d \: -f 2 <<< ${{ env.DEFAULT_SOURCE }})
@@ -132,6 +132,7 @@ jobs:
         echo "REPO_BRANCH=$REPO_BRANCH" >> $GITHUB_ENV
         echo "Compile_Date=$(date +%Y%m%d%H%M)" >> $GITHUB_ENV
         echo "Display_Date=$(date +%Y/%m/%d)" >> $GITHUB_ENV
+        echo "FORCE_UNSAFE_CONFIGURE=1" >> $GITHUB_ENV
 
     - name: Initialize Environment
       env:
@@ -139,7 +140,7 @@ jobs:
       run: |
         sudo -E apt-get update
         sudo -E apt-get -y install busybox build-essential cmake asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs git-core gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libreadline-dev libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint ccache curl wget vim nano python2.7 python3 python3-pip python3-ply haveged lrzsz device-tree-compiler scons antlr3 gperf intltool mkisofs rsync
-        sudo timedatectl set-timezone "Asia/Shanghai"
+        sudo timedatectl set-timezone "US/Pacific"
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
         if [ "${{ env.DELETE_USELESS_FILES }}" == true ]
