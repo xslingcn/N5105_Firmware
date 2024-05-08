@@ -76,9 +76,9 @@ EOF
 
 		# AddPackage svn apps minieap immortalwrt/packages/branches/openwrt-18.06/net
 		AddPackage git lean luci-app-argon-config jerrykuku master
-		# AddPackage git other OpenClash vernesong master
+		AddPackage git other OpenClash vernesong master
 		# AddPackage git other luci-app-ikoolproxy iwrt main
-		# AddPackage git other helloworld fw876 master
+		AddPackage git other helloworld fw876 master
 		# sed -i 's/143/143,8080,8443,6969,1337/' $(PKG_Finder d package luci-app-ssr-plus)/root/etc/init.d/shadowsocksr
 		
 		# for x in $(ls -1 ${CustomFiles}/Patches/luci-app-shadowsocksr)
@@ -103,8 +103,8 @@ EOF
 		# ;;
 		x86_64)
 			Copy ${CustomFiles}/Depends/cpuset ${BASE_FILES}/bin
-			# AddPackage git passwall-depends openwrt-passwall xiaorouji packages
-			# AddPackage git passwall-luci openwrt-passwall xiaorouji luci
+			AddPackage git passwall-depends openwrt-passwall xiaorouji packages
+			AddPackage git passwall-luci openwrt-passwall xiaorouji luci
 			# rm -rf packages/lean/autocore
 			# AddPackage git lean autocore-modify Hyy2001X master
 			sed -i -- 's:/bin/ash:'/bin/bash':g' ${BASE_FILES}/etc/passwd
