@@ -94,5 +94,5 @@ EOF
 			chmod +x ${BASE_FILES}/usr/bin/speedtest
 		;;
 		esac
+	esac
 }
-  

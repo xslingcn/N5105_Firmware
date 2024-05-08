@@ -28,8 +28,12 @@ on:
         description: '源仓库Commit [可选]'
         default: ''
       Temporary_VERBOSE:
-        description: '开启Verbose日志(true/false) [可选]'
-        default: 'true'
+        description: '开启Verbose日志'
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
 ### 控制部分结束 ( 以上内容请保持不变 )
 
   #push:
