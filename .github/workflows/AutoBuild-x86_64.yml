@@ -17,9 +17,13 @@ on:
       Temporary_CONFIG:
         description: '配置文件 [可选]'
         default: 'x86_64'
-      Temporary_FLAG:
-        description: '固件标签 [可选]'
-        default: ''
+      Tempoary_FLAG:
+        description: '固件标签'
+        default: 'AUTO'
+        type: choice
+        options:
+          - 'AUTO'
+          - 'Full'
       Temporary_COMMIT:
         description: '源仓库Commit [可选]'
         default: ''
@@ -67,14 +71,39 @@ jobs:
       contents: write
 
     steps:
-    - name: Maximize Build Space
+    - name: "Optimize disk space"
+      if: env.DELETE_USELESS_FILES == 'true' && !cancelled()
+      uses: "hugoalh/disk-space-optimizer-ghaction@v0.8.0"
+      with:
+        operate_sudo: "True"
+        general_include: ".+"
+        general_exclude: |-
+          ^GCC$
+          ^G\+\+$
+          Clang
+          LLVM
+        docker_include: ".+"
+        docker_prune: "True"
+        docker_clean: "True"
+        apt_prune: "True"
+        apt_clean: "True"
+        homebrew_prune: "True"
+        homebrew_clean: "True"
+        npm_prune: "True"
+        npm_clean: "True"
+        os_swap: "True"
+
+    - name: Free up disk space
       if: env.DELETE_USELESS_FILES == 'true' && !cancelled()
       uses: easimon/maximize-build-space@master
-      with:
-        root-reserve-mb: 5120
+      with: 
+        root-reserve-mb: 2048
+        swap-size-mb: 1
         remove-dotnet: 'true'
         remove-android: 'true'
         remove-haskell: 'true'
+        remove-codeql: 'true'
+        remove-docker-images: 'true'
 
     - name: Checkout
       uses: actions/checkout@main
@@ -132,24 +161,37 @@ jobs:
         echo "REPO_BRANCH=$REPO_BRANCH" >> $GITHUB_ENV
         echo "Compile_Date=$(date +%Y%m%d%H%M)" >> $GITHUB_ENV
         echo "Display_Date=$(date +%Y/%m/%d)" >> $GITHUB_ENV
-        echo "FORCE_UNSAFE_CONFIGURE=1" >> $GITHUB_ENV
+        if [[ -z "${{ github.event.inputs.Tempoary_CONFIG }}" ]]; then
+            echo "TIMED_TRIGGER=true" >> $GITHUB_ENV
+        else
+            echo "UPLOAD_RELEASES=${{ github.event.inputs.UPLOAD_RELEASES }}" >> $GITHUB_ENV
+            echo "UPLOAD_ARTIFACTS=${{ github.event.inputs.UPLOAD_ARTIFACTS }}" >> $GITHUB_ENV
+            echo "UPLOAD_BIN_ARTIFACTS=${{ github.event.inputs.UPLOAD_BIN_ARTIFACTS }}" >> $GITHUB_ENV
+        fi
+
+    - name: TIMED_TRIGGER
+      if: env.TIMED_TRIGGER == 'true'
+      env:
+        UPLOAD_RELEASES: true
+        UPLOAD_ARTIFACTS: false
+        UPLOAD_BIN_ARTIFACTS: false
+      run: |
+        echo "UPLOAD_RELEASES=${UPLOAD_RELEASES}" >> $GITHUB_ENV
+        echo "UPLOAD_ARTIFACTS=${UPLOAD_ARTIFACTS}" >> $GITHUB_ENV
+        echo "UPLOAD_BIN_ARTIFACTS=${UPLOAD_BIN_ARTIFACTS}" >> $GITHUB_ENV
 
     - name: Initialize Environment
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        sudo -E apt-get update
-        sudo -E apt-get -y install busybox build-essential cmake asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs git-core gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libreadline-dev libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint ccache curl wget vim nano python2.7 python3 python3-pip python3-ply haveged lrzsz device-tree-compiler scons antlr3 gperf intltool mkisofs rsync
-        sudo timedatectl set-timezone "US/Pacific"
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
-        if [ "${{ env.DELETE_USELESS_FILES }}" == true ]
-        then
-            docker rmi $(docker images -q)
-            sudo rm -rf /usr/share/dotnet /etc/mysql /etc/php
-            sudo -E apt-get -y autoremove --purge
-            sudo -E apt-get clean
-        fi
+        sudo -E apt update
+        sudo -E apt -y full-upgrade
+        sudo -E apt-get -y install busybox build-essential cmake asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs git-core gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libreadline-dev libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint ccache curl wget vim nano python2.7 python3 python3-pip python3-ply haveged lrzsz device-tree-compiler scons antlr3 gperf intltool mkisofs rsync
+        sudo -E apt -y autoremove --purge
+        sudo -E apt clean
+        sudo timedatectl set-timezone "US/Pacific"
 
     - name: Clone Openwrt Source Code
       run: |
@@ -170,11 +212,13 @@ jobs:
         ccache: false
         toolchain: true
         skip: true
-        clean: false
+        clean: true
         prefix: ${{ github.workspace }}/openwrt
 
     - name: Run Diy Scripts
       run: |
+        echo "Free space:"
+        df -h
         chmod +x Scripts/AutoBuild_*.sh
         cd openwrt
         if [ "${{ env.CACHE_ACCELERATE }}" == true ]
@@ -185,7 +229,7 @@ jobs:
         source $GITHUB_WORKSPACE/Scripts/AutoBuild_DiyScript.sh
         source $GITHUB_WORKSPACE/Scripts/AutoBuild_Function.sh
         make defconfig
-        Firmware_Diy_Before
+        Firmware_Diy_Start
         rm -f .config && cp $GITHUB_WORKSPACE/Configs/$CONFIG_FILE .config
         Firmware_Diy_Main
         Firmware_Diy
@@ -199,6 +243,7 @@ jobs:
         make download -j8
 
     - name: Build OpenWrt
+      id: compile
       run: |
         cd openwrt
         if [ "${{ env.Temporary_VERBOSE }}" == true ]
@@ -212,7 +257,7 @@ jobs:
         [ "$?" == 0 ] && echo "Compile_Result=true" >> $GITHUB_ENV || echo "Compile_Result=false" >> $GITHUB_ENV
 
     - name: Checkout Firmware
-      if: env.Compile_Result == 'true' && !cancelled()
+      if: steps.compile.outcome == 'success' && !cancelled()
       run: |
         cd openwrt
         source $GITHUB_WORKSPACE/Scripts/AutoBuild_Function.sh
@@ -220,21 +265,21 @@ jobs:
 
     - name: Upload Firmware to Artifacts
       uses: actions/upload-artifact@main
-      if: env.UPLOAD_ARTIFACTS == 'true' && env.Compile_Result == 'true' && !cancelled()
+      if: env.UPLOAD_ARTIFACTS == 'true' && steps.compile.outcome == 'success' && !cancelled()
       with:
         name: ${{ env.CONFIG_FILE }}_firmware_${{ env.Compile_Date }}
         path: openwrt/bin/Firmware
 
     - name: Upload bin to Artifacts
       uses: actions/upload-artifact@main
-      if: env.UPLOAD_BIN_ARTIFACTS == 'true' && env.Compile_Result == 'true' && !cancelled()
+      if: env.UPLOAD_BIN_ARTIFACTS == 'true' && steps.compile.outcome == 'success' && !cancelled()
       with:
         name: ${{ env.CONFIG_FILE }}_bin_${{ env.Compile_Date }}
         path: openwrt/bin
 
     - name: Upload Firmware to Release
       uses: svenstaro/upload-release-action@v2
-      if: env.UPLOAD_RELEASES == 'true' && env.Compile_Result == 'true' && !cancelled()
+      if: env.UPLOAD_RELEASES == 'true' && steps.compile.outcome == 'success' && !cancelled()
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: openwrt/bin/Firmware/*
@@ -242,13 +287,13 @@ jobs:
         tag: AutoUpdate
         overwrite: true
         
-    - name: Download Github API
-      if: env.UPLOAD_RELEASES == 'true' && env.Compile_Result == 'true' && !cancelled()
+    - name: Refresh API (1/2)
+      if: env.UPLOAD_RELEASES == 'true' && steps.compile.outcome == 'success' && !cancelled()
       run: |
         wget https://api.github.com/repos/${{github.repository}}/releases/tags/AutoUpdate -O API
         
-    - name: Upload Github API to Release
-      if: env.UPLOAD_RELEASES == 'true' && env.Compile_Result == 'true' && !cancelled()
+    - name: Refresh API (2/2)
+      if: env.UPLOAD_RELEASES == 'true' && steps.compile.outcome == 'success' && !cancelled()
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -258,8 +303,11 @@ jobs:
         overwrite: true
 
     - name: Delete old Workflow Runs
-      uses: GitRML/delete-workflow-runs@main
+      continue-on-error: true
       if: env.DELETE_OLD_WORKFLOW == 'true' && !cancelled()
+      uses: Mattraks/delete-workflow-runs@v2
       with:
-        retain_days: 1
-        keep_minimum_runs: 3
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          retain_days: 3
+          keep_minimum_runs: 0

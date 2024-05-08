@@ -67,34 +67,11 @@ EOF
 		# sed -i "s?/bin/login?/usr/libexec/login.sh?g" ${FEEDS_PKG}/ttyd/files/ttyd.config
 		# sed -i 's/luci-theme-bootstrap/luci-theme-argon-mod/g' feeds/luci/collections/luci/Makefile
 		# sed -i '/uci commit luci/i\uci set luci.main.mediaurlbase="/luci-static/argon-mod"' $(PKG_Finder d package default-settings)/files/zzz-default-settings
-		
-		# for i in smartdns eqos mentohust minieap unblockneteasemusic
-		# do
-		# 	AddPackage svn apps luci-app-${i} immortalwrt/luci/branches/openwrt-18.06/applications
-		# 	sed -i 's/..\/..\//\$\(TOPDIR\)\/feeds\/luci\//g' ${WORK}/package/apps/luci-app-${i}/Makefile
-		# done ; unset i
 
-		# AddPackage svn apps minieap immortalwrt/packages/branches/openwrt-18.06/net
+		AddPackage other vernesong OpenClash dev
 		AddPackage git lean luci-app-argon-config jerrykuku master
+		AddPackage other fw876 helloworld main
 		AddPackage git other OpenClash vernesong master
-		# AddPackage git other luci-app-ikoolproxy iwrt main
-		AddPackage git other helloworld fw876 master
-		# sed -i 's/143/143,8080,8443,6969,1337/' $(PKG_Finder d package luci-app-ssr-plus)/root/etc/init.d/shadowsocksr
-		
-		# for x in $(ls -1 ${CustomFiles}/Patches/luci-app-shadowsocksr)
-		# do
-		# 	patch < ${CustomFiles}/Patches/luci-app-shadowsocksr/${x} -p1 -d ${WORK}
-		# done ; unset x
-		
-		# patch < ${CustomFiles}/Patches/fix_coremark.patch -p1 -d ${WORK}
-		# patch < ${CustomFiles}/Patches/fix_aria2_auto_create_download_path.patch -p1 -d ${WORK}
-
-		# case "${TARGET_BOARD}" in
-		# ramips)
-		# 	sed -i "/DEVICE_COMPAT_VERSION := 1.1/d" target/linux/ramips/image/mt7621.mk
-		# 	Copy ${CustomFiles}/Depends/automount $(PKG_Finder d "package" automount)/files 15-automount
-		# ;;
-		# esac
 
 		case "${TARGET_PROFILE}" in
 		# d-team_newifi-d2)
@@ -102,18 +79,21 @@ EOF
 		# 	patch < ${CustomFiles}/d-team_newifi-d2_mt76_dualband.patch -p1 -d ${WORK}
 		# ;;
 		x86_64)
-			Copy ${CustomFiles}/Depends/cpuset ${BASE_FILES}/bin
-			AddPackage git passwall-depends openwrt-passwall xiaorouji packages
-			AddPackage git passwall-luci openwrt-passwall xiaorouji luci
+			# sed -i "s?6.1?6.6?g" ${WORK}/target/linux/x86/Makefile
+			ClashDL amd64 dev
+			ClashDL amd64 tun
+			ClashDL amd64 meta
+			AddPackage passwall xiaorouji openwrt-passwall-packages main
+			AddPackage passwall xiaorouji openwrt-passwall main
+			# AddPackage passwall xiaorouji openwrt-passwall2 main
+			rm -r ${WORK}/package/other/helloworld/xray-core
+			rm -r ${WORK}/package/other/helloworld/xray-plugin
 			# rm -rf packages/lean/autocore
-			# AddPackage git lean autocore-modify Hyy2001X master
-			sed -i -- 's:/bin/ash:'/bin/bash':g' ${BASE_FILES}/etc/passwd
-			# patch < ${CustomFiles}/Patches/upgrade_intel_igpu_drv.patch -p1 -d ${WORK}
+			# AddPackage lean Hyy2001X autocore-modify master
+			Copy ${CustomFiles}/speedtest ${BASE_FILES}/usr/bin
+			chmod +x ${BASE_FILES}/usr/bin/speedtest
 		;;
 		esac
 	;;
-	# immortalwrt/immortalwrt*)
-	# 	sed -i "s?/bin/login?/usr/libexec/login.sh?g" ${FEEDS_PKG}/ttyd/files/ttyd.config
-	# ;;
-	esac
 }
+  
