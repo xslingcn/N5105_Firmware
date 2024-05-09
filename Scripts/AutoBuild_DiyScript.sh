@@ -57,8 +57,8 @@ EOF
 		# sed -i '/uci commit luci/i\uci set luci.main.mediaurlbase="/luci-static/argon-mod"' $(PKG_Finder d package default-settings)/files/zzz-default-settings
 
 		AddPackage other vernesong OpenClash dev
-		AddPackage git lean luci-app-argon-config jerrykuku master
-		AddPackage themes thinktip luci-theme-neobird main
+		# AddPackage git lean luci-app-argon-config jerrykuku master
+		# AddPackage themes thinktip luci-theme-neobird main
 		AddPackage other fw876 helloworld main
 		AddPackage git other OpenClash vernesong master
 
