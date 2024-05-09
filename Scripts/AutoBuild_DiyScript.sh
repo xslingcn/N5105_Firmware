@@ -43,18 +43,6 @@ Firmware_Diy() {
 
 sed -i '/check_signature/d' /etc/opkg.conf
 
-# sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/aliyundrive-webdav.lua
-# sed -i 's/services/nas/g' /usr/lib/lua/luci/view/aliyundrive-webdav/aliyundrive-webdav_log.htm
-# sed -i 's/services/nas/g' /usr/lib/lua/luci/view/aliyundrive-webdav/aliyundrive-webdav_status.htm
-
-sed -i 's/\"services\"/\"vpn\"/g' /usr/lib/lua/luci/controller/v2ray_server.lua
-sed -i 's/\"services\"/\"vpn\"/g' /usr/lib/lua/luci/model/cbi/v2ray_server/index.lua
-sed -i 's/\"services\"/\"vpn\"/g' /usr/lib/lua/luci/model/cbi/v2ray_server/user.lua
-sed -i 's/services/vpn/g' /usr/lib/lua/luci/view/v2ray_server/log.htm
-sed -i 's/services/vpn/g' /usr/lib/lua/luci/view/v2ray_server/users_list_status.htm
-sed -i 's/services/vpn/g' /usr/lib/lua/luci/view/v2ray_server/users_list_status.htm
-sed -i 's/services/vpn/g' /usr/lib/lua/luci/view/v2ray_server/v2ray.htm
-
 # if [ -z "\$(grep "REDIRECT --to-ports 53" /etc/firewall.user 2> /dev/null)" ]
 # then
 # 	echo '#iptables -t nat -A PREROUTING -p udp --dport 53 -j REDIRECT --to-ports 53' >> /etc/firewall.user
@@ -70,6 +58,7 @@ EOF
 
 		AddPackage other vernesong OpenClash dev
 		AddPackage git lean luci-app-argon-config jerrykuku master
+		AddPackage themes thinktip luci-theme-neobird main
 		AddPackage other fw876 helloworld main
 		AddPackage git other OpenClash vernesong master
 
