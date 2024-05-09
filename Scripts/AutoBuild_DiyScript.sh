@@ -60,7 +60,6 @@ EOF
 		# AddPackage git lean luci-app-argon-config jerrykuku master
 		# AddPackage themes thinktip luci-theme-neobird main
 		AddPackage other fw876 helloworld main
-		AddPackage git other OpenClash vernesong master
 
 		case "${TARGET_PROFILE}" in
 		# d-team_newifi-d2)
@@ -68,6 +67,7 @@ EOF
 		# 	patch < ${CustomFiles}/d-team_newifi-d2_mt76_dualband.patch -p1 -d ${WORK}
 		# ;;
 		x86_64)
+			ECHO "Modifying x86_64 target..."
 			# sed -i "s?6.1?6.6?g" ${WORK}/target/linux/x86/Makefile
 			ClashDL amd64 dev
 			ClashDL amd64 tun
