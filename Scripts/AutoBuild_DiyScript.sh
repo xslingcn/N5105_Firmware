@@ -13,7 +13,7 @@ Firmware_Diy_Core() {
 	Fw_Format=false
 	Regex_Skip="packages|buildinfo|sha256sums|manifest|kernel|rootfs|factory|itb|profile|ext4|json"
 
-	AutoBuild_Features=true
+	AutoBuild_Features=false
 }
 
 Firmware_Diy() {
