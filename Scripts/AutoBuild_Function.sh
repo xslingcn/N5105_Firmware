@@ -355,6 +355,9 @@ Firmware_Diy_End() {
 		cd -
 		mv -f ${Fw_Path}/AutoBuild-* bin/Firmware
 	fi
+	pwd
+	ls ${WORK}
+	tree ${WORK}/bin
 	ECHO "[Firmware_Diy_End] Done"
 }
 
