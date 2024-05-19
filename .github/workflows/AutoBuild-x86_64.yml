@@ -165,6 +165,7 @@ jobs:
         echo "REPO_BRANCH=$REPO_BRANCH" >> $GITHUB_ENV
         echo "Compile_Date=$(date +%Y%m%d%H%M)" >> $GITHUB_ENV
         echo "Display_Date=$(date +%Y/%m/%d)" >> $GITHUB_ENV
+        echo "Tempoary_CONFIG=${{ github.event.inputs.Tempoary_CONFIG }}"
         if [[ -z "${{ github.event.inputs.Tempoary_CONFIG }}" ]]; then
             echo "TIMED_TRIGGER=true" >> $GITHUB_ENV
         else
