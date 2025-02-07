@@ -59,7 +59,7 @@ EOF
 		AddPackage other vernesong OpenClash dev
 		# AddPackage git lean luci-app-argon-config jerrykuku master
 		# AddPackage themes thinktip luci-theme-neobird main
-		AddPackage other fw876 helloworld main
+		# AddPackage other fw876 helloworld main
 
 		case "${TARGET_PROFILE}" in
 		# d-team_newifi-d2)
@@ -75,8 +75,8 @@ EOF
 			AddPackage passwall xiaorouji openwrt-passwall-packages main
 			AddPackage passwall xiaorouji openwrt-passwall main
 			# AddPackage passwall xiaorouji openwrt-passwall2 main
-			rm -r ${WORK}/package/other/helloworld/xray-core
-			rm -r ${WORK}/package/other/helloworld/xray-plugin
+			# rm -r ${WORK}/package/other/helloworld/xray-core
+			# rm -r ${WORK}/package/other/helloworld/xray-plugin
 			# rm -rf packages/lean/autocore
 			# AddPackage lean Hyy2001X autocore-modify master
 			Copy ${CustomFiles}/speedtest ${BASE_FILES}/usr/bin
