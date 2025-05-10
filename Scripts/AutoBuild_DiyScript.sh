@@ -6,7 +6,7 @@ Firmware_Diy_Core() {
 
 	Author=XSLING
 	Default_IP="10.10.0.1"
-	Default_Title="Powered by AutoBuild-Actions"
+	Default_Title="XSLING OpenWrt"
 
 	Short_Fw_Date=true
 	x86_Full_Images=false
@@ -37,10 +37,11 @@ Firmware_Diy() {
 	# ${FEEDS_PKG}			OpenWrt 源码目录下的 package/feeds/packages 目录
 	# ${BASE_FILES}			OpenWrt 源码目录下的 package/base-files/files 目录
 
-	case "${OP_AUTHOR}/${OP_REPO}:${OP_BRANCH}" in
-	coolsnowwolf/lede:master)
-		cat >> ${Version_File} <<EOF
-
+	ECHO "[Firmware_Diy] Starting ..."
+	echo "Version_File: ${Version_File}"
+    case "${OP_AUTHOR}/${OP_REPO}:${OP_BRANCH}" in
+    coolsnowwolf/lede:master)
+        cat >>"${Version_File}" << 'EOF'
 sed -i '/check_signature/d' /etc/opkg.conf
 
 # if [ -z "\$(grep "REDIRECT --to-ports 53" /etc/firewall.user 2> /dev/null)" ]
@@ -57,9 +58,9 @@ EOF
 		# sed -i '/uci commit luci/i\uci set luci.main.mediaurlbase="/luci-static/argon-mod"' $(PKG_Finder d package default-settings)/files/zzz-default-settings
 
 		AddPackage other vernesong OpenClash dev
-		# AddPackage git lean luci-app-argon-config jerrykuku master
+		AddPackage lean jerrykuku luci-app-argon-config master
 		# AddPackage themes thinktip luci-theme-neobird main
-		# AddPackage other fw876 helloworld main
+		AddPackage other fw876 helloworld master
 
 		case "${TARGET_PROFILE}" in
 		# d-team_newifi-d2)
@@ -67,6 +68,7 @@ EOF
 		# 	patch < ${CustomFiles}/d-team_newifi-d2_mt76_dualband.patch -p1 -d ${WORK}
 		# ;;
 		x86_64)
+			ls package
 			ECHO "Modifying x86_64 target..."
 			# sed -i "s?6.1?6.6?g" ${WORK}/target/linux/x86/Makefile
 			ClashDL amd64 dev
@@ -74,13 +76,6 @@ EOF
 			ClashDL amd64 meta
 			AddPackage passwall xiaorouji openwrt-passwall-packages main
 			AddPackage passwall xiaorouji openwrt-passwall main
-			# AddPackage passwall xiaorouji openwrt-passwall2 main
-			# rm -r ${WORK}/package/other/helloworld/xray-core
-			# rm -r ${WORK}/package/other/helloworld/xray-plugin
-			# rm -rf packages/lean/autocore
-			# AddPackage lean Hyy2001X autocore-modify master
-			Copy ${CustomFiles}/speedtest ${BASE_FILES}/usr/bin
-			chmod +x ${BASE_FILES}/usr/bin/speedtest
 		;;
 		esac
 	esac

@@ -577,7 +577,7 @@ ReleaseDL() {
 }
 
 ClashDL() {
-	TMP_PATH=/opt/OpenClash
+	TMP_PATH=~/tmp/OpenClash
 	
 	PLATFORM=$1
 	CORE_TYPE=$2
